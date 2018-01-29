@@ -17,10 +17,25 @@ app.use(express.static('public'));
 //Define the Schema or pattern of the campgrounds
 let campGroundSchema = new mongoose.Schema({
     name: String,
-    image: String
+    image: String,
+    description: String
 });
 //Define the model
 let CampGround = mongoose.model('CampGround', campGroundSchema);
+
+
+// CampGround.create({
+//     name: "Mountainside's Rest",
+//     image: "http://d2s0f1q6r2lxto.cloudfront.net/pub/ProTips/wp-content/uploads/2017/04/how-to-set-up-a-campsite.jpg",
+//     description: "Beautiful nature with a relaxing view"
+// }, (err, newcampground) => {
+//     if(err) {
+//         console.log(err);
+//     } else {
+//         console.log(newcampground);
+//     }
+// });
+
 
 
 app.get('/', (req, res) => {
@@ -46,7 +61,8 @@ app.get("/campgrounds", (req, res) => {
 app.post("/campgrounds", (req, res) => {
     CampGround.create({
         name: req.body.name,
-        image: req.body.image
+        image: req.body.image,
+        description: req.body.description
     }, (err, newCampGround) => {
         if(err) {
             console.log("Error during creation: ");
@@ -65,6 +81,18 @@ app.get("/campgrounds/new", (req, res) => {
 });
 
 
+app.get('/campgrounds/:id', (req, res) => {
+    //Find the campground with provided id
+    CampGround.findById(req.params.id, (err, foundCamp) => {
+        if(err) {
+            console.log(err);
+        } else {
+            res.render("show", { camp: foundCamp });
+        }
+    });
+});
+
+
 app.get('*', (req, res) => {
     res.render("404");
 });
@@ -73,3 +101,16 @@ app.get('*', (req, res) => {
 app.listen(3000, () => {
     console.log('YelpCamp listening on port 3000!');
 });
+
+
+/*
+Restful Routes
+name    url         verb    desc
+INDEX   /dogs       GET     Display a list of all dogs
+NEW     /dogs/new   GET     Displays a form to make a new dog
+CREATE  /dogs       POST    Add a new dog to the DB
+SHOW    /dogs/:id    GET    Show info about 1 dog
+
+
+
+*/
