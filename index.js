@@ -1,9 +1,13 @@
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
+const express       = require('express'),
+      app           = express(),
+      bodyParser    = require('body-parser'),
+      mongoose      = require('mongoose'),
+      CampGround    = require('./models/campground.js'),
+      seedDB        = require('./seeds');
 
-/* Getting mongoose in and connecting it to MongoDB */
-const mongoose = require('mongoose');
+
+
+/* Connecting mongoose to MongoDB */
 mongoose.connect('mongodb://127.0.0.1/campGrounds');
 
 app.set('view engine', 'ejs');
@@ -11,35 +15,10 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(express.static('public'));
-
-
-/*Mongoose Object Data Model set up*/
-//Define the Schema or pattern of the campgrounds
-let campGroundSchema = new mongoose.Schema({
-    name: String,
-    image: String,
-    description: String
-});
-//Define the model
-let CampGround = mongoose.model('CampGround', campGroundSchema);
-
-
-// CampGround.create({
-//     name: "Mountainside's Rest",
-//     image: "http://d2s0f1q6r2lxto.cloudfront.net/pub/ProTips/wp-content/uploads/2017/04/how-to-set-up-a-campsite.jpg",
-//     description: "Beautiful nature with a relaxing view"
-// }, (err, newcampground) => {
-//     if(err) {
-//         console.log(err);
-//     } else {
-//         console.log(newcampground);
-//     }
-// });
-
+seedDB();
 
 
 app.get('/', (req, res) => {
-
     res.render("landing");
 });
 
@@ -83,11 +62,13 @@ app.get("/campgrounds/new", (req, res) => {
 
 app.get('/campgrounds/:id', (req, res) => {
     //Find the campground with provided id
-    CampGround.findById(req.params.id, (err, foundCamp) => {
-        if(err) {
+    //Then populate the comments from the ids that are associated with the campGround
+    //Then execute the callback function
+    CampGround.findById(req.params.id).populate("comments").exec((err, foundCamp) => {
+        if (err) {
             console.log(err);
         } else {
-            res.render("show", { camp: foundCamp });
+            res.render("show", { foundCamp: foundCamp });
         }
     });
 });
