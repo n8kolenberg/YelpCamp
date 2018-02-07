@@ -1,5 +1,5 @@
-<% include layouts/header %>
-  <% include layouts/nav %>
+<% include ../layouts/header %>
+  <% include ../layouts/nav %>
 
     <div class="container">
       <!-- <h1>This is the show page</h1> -->
@@ -31,7 +31,12 @@
 
           <% }); %>
       </div>
+      <div class="text-center col-12">
+        <a href="/campgrounds/<%= foundCamp._id %>/comments/new">
+          <button class="btn btn-primary"> Add New Comment </button>
+        </a> 
+      </div>
     </div>
 
 
-    <% include layouts/footer %>
+    <% include ../layouts/footer %>
