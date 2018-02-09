@@ -14,7 +14,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
+// console.log(__dirname); Users/n.kolenberg/documents/code/projects/Express/YelpCamp/v3
 seedDB();
 
 

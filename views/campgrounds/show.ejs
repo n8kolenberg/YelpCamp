@@ -2,41 +2,65 @@
   <% include ../layouts/nav %>
 
     <div class="container">
-      <!-- <h1>This is the show page</h1> -->
       <div class="row">
-        <div class="text-center col-12">
-          <img src="<%= foundCamp.image %>" alt="Camp image">
+        <div class="text-center col-md-3">
+          <p class="lead">YelpCamp</p>
+          <div class="list-group">
+            <li class="list-group-item active">Info 1</li>
+            <li class="list-group-item">Info 2</li>
+            <li class="list-group-item">Info 3</li>
+          </div>
+          <!--MAP-->
         </div>
 
-        <div class="col-12 text-center">
-          <h4>
-            <%= foundCamp.name %>
-          </h4>
-          <p>
-            <%= foundCamp.description %>
-          </p>
+        <div class="col-md-9">
+          <div class="card bg-light mb-3">
+            <img src="<%= foundCamp.image %>" class="card-img-top rounded" alt="Camping Ground Image">
+            <div class="card-body">
+              <div class="card-title">
+                <h4>
+                  <a href="#">
+                    <%= foundCamp.name %>
+                  </a>
+                </h4>
+              </div>
+              <div class="card-subtitle">
+                <h6>$9.00/night</h6>
+              </div>
+              <div class="card-text">
+                <p>
+                  <%= foundCamp.description %>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="card bg-light mb-3">
+            <div class="card-header">
+              <a href="/campgrounds/<%= foundCamp._id %>/comments/new">
+                <button class="btn btn-primary"> Add New Comment </button>
+              </a>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Reviews of <%= foundCamp.name %>:</h5>
+              <ul class="list-group list-group-flush">
+                <% foundCamp.comments.forEach((comment)=>{ %>
+                  <li class="list-group-item">
+                    <p>
+                      <strong>
+                        <%= comment.author %>
+                      </strong> -
+                      <%= comment.text %>
+                    </p>
+                    <p class="card-text">
+                      <small class="text-muted">Left 3 days ago %></small>
+                    </p>
+                  </li>
+                  <% }); %>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="row">
-      <div class="text-center col-12">
-        <% foundCamp.comments.forEach((comment)=>{ %>
-          <p>
-            <strong>
-              <%= comment.author %>
-            </strong> -
-            <%= comment.text %>
-          </p>
-
-          <% }); %>
-      </div>
-      <div class="text-center col-12">
-        <a href="/campgrounds/<%= foundCamp._id %>/comments/new">
-          <button class="btn btn-primary"> Add New Comment </button>
-        </a> 
-      </div>
-    </div>
-
 
     <% include ../layouts/footer %>
