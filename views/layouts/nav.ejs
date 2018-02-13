@@ -7,9 +7,13 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-item nav-link" href="#">Login</a>
-                <a class="nav-item nav-link" href="#">Sign Up</a>
-                <a class="nav-item nav-link disabled" href="#">Logout</a>
+                <% if(!currentUser) {%>
+                <a class="nav-item nav-link" href="/login">Login</a>
+                <a class="nav-item nav-link" href="/register">Sign Up</a>
+                    <%} else {%>
+                <a class="nav-item nav-link" href="#">Signed in as: <%= currentUser.username %></a>
+                <a class="nav-item nav-link disabled" href="logout">Logout</a>
+                <% } %>
             </div>
         </div>
     </div>

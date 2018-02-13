@@ -1,10 +1,14 @@
-const express       = require('express'),
-      app           = express(),
-      bodyParser    = require('body-parser'),
-      mongoose      = require('mongoose'),
-      CampGround    = require('./models/campground.js'),
-      Comment       = require('./models/comment.js'),
-      seedDB        = require('./seeds');
+const express                   = require('express'),
+      app                       = express(),
+      bodyParser                = require('body-parser'),
+      mongoose                  = require('mongoose'),
+      CampGround                = require('./models/campground.js'),
+      Comment                   = require('./models/comment.js'),
+      User                      = require("./models/user.js"),
+      passport                  = require("passport"),
+      localStrategy             = require("passport-local"),
+      passportLocalMongoose     = require("passport-local-mongoose"),
+      seedDB                    = require('./seeds');
 
 
 /* Connecting mongoose to MongoDB */
@@ -19,6 +23,53 @@ app.use(express.static(__dirname + '/public'));
 seedDB();
 
 
+/* ======================================
+   PASSPORT CONFIG
+   ====================================== */
+app.use(require("express-session")({
+    secret: "YelpCamp is the best app ever",
+    resave: false,
+    saveUninitialized: false
+}));
+
+//Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+//User.authenticate() -> method possible because of line 10 in user.js
+//userSchema.plugin(passportLocalMongoose);
+passport.use(new localStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+
+
+/* ======================================
+   MIDDLEWARE
+   ====================================== */
+function isLoggedIn(req, res, next) {
+    if(req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/login");
+}
+
+//Whatever we put in res.locals is what's available inside our templates
+//This is a middleware that runs for every single route
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    //We need to add next() so that it goes to the routehandler
+    next();
+});
+
+
+
+
+/* ======================================
+   ROUTES
+   ====================================== */
 app.get('/', (req, res) => {
     res.render("landing");
 });
@@ -29,13 +80,9 @@ app.get("/campgrounds", (req, res) => {
             console.log("There was an error getting the campgrounds: ");
             console.log(err);
         } else {
-            res.render('campgrounds/campgrounds', {campGrounds: allcampGrounds});
+            res.render('campgrounds/campgrounds', {campGrounds: allcampGrounds, currentUser: req.user});
         }
     });
-    
-    // res.render("campgrounds", {
-    //     campGrounds: campGrounds
-    // });
 });
 
 app.post("/campgrounds", (req, res) => {
@@ -56,7 +103,7 @@ app.post("/campgrounds", (req, res) => {
 });
 
 //This renders a form that allows above post method to be called
-app.get("/campgrounds/new", (req, res) => {
+app.get("/campgrounds/new", isLoggedIn, (req, res) => {
     res.render("campgrounds/new");
 });
 
@@ -92,7 +139,7 @@ app.get("/campgrounds/:id/comments/new", (req, res)=>{
 });
 
 // CREATE campgrounds/:id/comments POST
-app.post('/campgrounds/:id/comments', (req, res) => {
+app.post('/campgrounds/:id/comments', isLoggedIn, (req, res) => {
     //lookup the campground using id
     CampGround.findById(req.params.id, (err, campground) => {
         if(err) {
@@ -118,11 +165,55 @@ app.post('/campgrounds/:id/comments', (req, res) => {
 
 
 
+/* ======================================
+   AUTH ROUTES
+   ====================================== */
+//Show the register form
+   app.get("/register", (req, res) => {
+    res.render("register");
+});
 
+//Handle sign up logic
+app.post("/register", (req, res) => {
+    let newUser = new User({
+        username: req.body.username
+    });
+    User.register(newUser, req.body.password, (err, user)=>{
+        if(err) {
+            console.log(err);
+            return res.render("register");
+        } 
+        passport.authenticate("local")(req, res, () => {
+            res.redirect("/campgrounds");
+        });
+    } );
+});
+
+//Show the login form
+app.get("/login", (req, res)=>{
+    res.render("login");
+});
+
+//Handle the login logic
+app.post("/login", passport.authenticate("local", {
+    successRedirect: "/campgrounds",
+    failureRedirect: "/login"
+}), (req, res) => {});
+
+
+
+//Logout routes
+app.get("/logout", (req, res) => {
+    req.logout();
+    res.redirect("/campgrounds");
+});
+
+
+
+//CATCH ALL ROUTE
 app.get('*', (req, res) => {
     res.render("404");
 });
-
 
 app.listen(3000, () => {
     console.log('YelpCamp listening on port 3000!');
