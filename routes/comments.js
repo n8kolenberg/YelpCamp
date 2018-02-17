@@ -1,5 +1,5 @@
 const express           = require("express"),
-      router            = express.Router()
+      router            = express.Router(),
       CampGround        = require("../models/campground"),
       Comment           = require("../models/comment"),
       isLoggedIn        = require("../middleware/loggedIn");
@@ -37,6 +37,13 @@ router.post('/campgrounds/:id/comments', isLoggedIn, (req, res) => {
                 if (err) {
                     console.log(err);
                 } else {
+                    //Add username and id to comment
+                    //comment.author.id and comment.author.username are defined in the Comment model in /models/comment.js
+                    newComment.author.id = req.user._id;
+                    newComment.author.username = req.user.username;
+                    //save comment
+                    newComment.save();
+
                     //Connect new comment to campground
                     campground.comments.push(newComment._id);
                     campground.save();

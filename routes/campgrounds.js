@@ -15,18 +15,24 @@ router.get("/", (req, res) => {
     });
 });
 
-router.post("/", (req, res) => {
-    CampGround.create({
+router.post("/", isLoggedIn, (req, res) => {
+    let author = {
+        id: req.user._id,
+        username: req.user.username
+    };
+    let newCampGround = {
         name: req.body.name,
         image: req.body.image,
-        description: req.body.description
-    }, (err, newCampGround) => {
+        description: req.body.description,
+        author: author
+    };
+    CampGround.create(newCampGround, (err, newlyCreatedCampGround) => {
         if (err) {
             console.log("Error during creation: ");
             console.log(err);
         } else {
             //Redirect back to campgrounds
-            res.redirect("campgrounds/campgrounds");
+            res.redirect(`/campgrounds/${newlyCreatedCampGround._id}`);
         }
     });
 

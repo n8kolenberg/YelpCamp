@@ -4,12 +4,19 @@ let campGroundSchema = new mongoose.Schema({
     name: String,
     image: String,
     description: String,
-    comments: [
-        {
+    comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment"
+    }],
+
+    author: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        username: String
     }
-]
+
 });
 //Define the model
 module.exports = mongoose.model('CampGround', campGroundSchema);

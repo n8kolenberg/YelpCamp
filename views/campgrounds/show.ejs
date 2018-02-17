@@ -31,6 +31,9 @@
                 <p>
                   <%= foundCamp.description %>
                 </p>
+                <h5>
+                  <em>Submitted by: <strong><%= foundCamp.author.username %></strong></em>
+                </h5>
               </div>
             </div>
           </div>
@@ -47,7 +50,7 @@
                   <li class="list-group-item">
                     <p>
                       <strong>
-                        <%= comment.author %>
+                        <%= comment.author.username %>
                       </strong> -
                       <%= comment.text %>
                     </p>
