@@ -1,6 +1,6 @@
 const express       = require("express"),
       router        = express.Router({mergeParams: true}),
-      passport      = require("passport")
+      passport      = require("passport"),
       User          = require("../models/user");
 
 router.get('/', (req, res) => {
@@ -46,7 +46,7 @@ router.post("/login", passport.authenticate("local", {
 
 //Logout routes
 router.get("/logout", (req, res) => {
-    // console.log(req.body.params);
+    // console.log(req.user);
     req.logout();
     res.redirect("/campgrounds");
 });

@@ -1,5 +1,5 @@
 const express           = require("express"),
-      router            = express.Router(),
+      router            = express.Router({mergeParams: true}),
       CampGround        = require("../models/campground"),
       isLoggedIn        = require("../middleware/loggedIn");
 
