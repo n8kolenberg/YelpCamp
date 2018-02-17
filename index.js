@@ -8,6 +8,7 @@ const express                   = require('express'),
       passport                  = require("passport"),
       localStrategy             = require("passport-local"),
       passportLocalMongoose     = require("passport-local-mongoose"),
+      methodOverride            = require("method-override"),
       seedDB                    = require('./seeds');
 
 //Require routes
@@ -24,6 +25,8 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(express.static(__dirname + '/public'));
 // console.log(__dirname); Users/n.kolenberg/documents/code/projects/Express/YelpCamp/v3
+
+app.use(methodOverride("_method"));
 seedDB();
 
 

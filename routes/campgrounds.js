@@ -15,6 +15,14 @@ router.get("/", (req, res) => {
     });
 });
 
+
+//This renders a form that allows the below post method to be called
+router.get("/new", isLoggedIn, (req, res) => {
+    res.render("campgrounds/new");
+});
+
+
+//Creating and saving a new campGround
 router.post("/", isLoggedIn, (req, res) => {
     let author = {
         id: req.user._id,
@@ -38,11 +46,6 @@ router.post("/", isLoggedIn, (req, res) => {
 
 });
 
-//This renders a form that allows above post method to be called
-router.get("/new", isLoggedIn, (req, res) => {
-    res.render("campgrounds/new");
-});
-
 
 router.get('/:id', (req, res) => {
     //Find the campground with provided id
@@ -56,5 +59,31 @@ router.get('/:id', (req, res) => {
         }
     });
 });
+
+//EDIT CAMPGROUND
+router.get("/:id/edit", (req, res) => {
+    CampGround.findById(req.params.id, (err, foundCampGround) => {
+        if(err) {
+            console.log(err);
+        } else {
+            res.render("campgrounds/edit", { campground: foundCampGround });
+        }
+    });
+    
+});
+
+//UPDATE CAMPGROUND 
+router.put("/:id/", (req, res) => {
+    //Find and update the correct campground
+    CampGround.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampGround) => {
+        if(err) {
+            console.log(err);
+        } else {
+            res.redirect(`/campgrounds/${updatedCampGround._id}`);
+        }
+    });
+});
+
+
 
 module.exports = router;
