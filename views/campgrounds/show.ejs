@@ -27,17 +27,26 @@
               <div class="card-subtitle">
                 <h6>$9.00/night</h6>
               </div>
+
               <div class="card-text">
                 <p>
                   <%= foundCamp.description %>
                 </p>
                 <h5>
-                  <em>Submitted by: <strong><%= foundCamp.author.username %></strong></em>
+                  <em>Submitted by:
+                    <strong>
+                      <%= foundCamp.author.username %>
+                    </strong>
+                  </em>
                 </h5>
                 <a href="/campgrounds/<%=foundCamp._id%>/edit" class="btn btn-warning">Edit</a>
+                <form action="/<%= foundCamp._id%>?_method=DELETE" method="POST" id="delete-form">
+                  <button class="btn btn-danger">Delete</button>
+                </form>
               </div>
             </div>
           </div>
+
           <div class="card bg-light mb-3">
             <div class="card-header">
               <a href="/campgrounds/<%= foundCamp._id %>/comments/new">
@@ -45,7 +54,8 @@
               </a>
             </div>
             <div class="card-body">
-              <h5 class="card-title">Reviews of <%= foundCamp.name %>:</h5>
+              <h5 class="card-title">Reviews of
+                <%= foundCamp.name %>:</h5>
               <ul class="list-group list-group-flush">
                 <% foundCamp.comments.forEach((comment)=>{ %>
                   <li class="list-group-item">

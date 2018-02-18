@@ -15,6 +15,9 @@ a {
     color: steelblue;
 }
 
+#delete-form {
+    display: inline;
+}
 /* img {
   width: 350px;
   border-radius: 10px;

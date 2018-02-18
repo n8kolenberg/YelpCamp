@@ -1,7 +1,8 @@
-const express           = require("express"),
-      router            = express.Router({mergeParams: true}),
-      CampGround        = require("../models/campground"),
-      isLoggedIn        = require("../middleware/loggedIn");
+const express                   = require("express"),
+      router                    = express.Router({mergeParams: true}),
+      CampGround                = require("../models/campground"),
+      isLoggedIn                = require("../middleware/loggedIn"),
+      checkCampGroundOwnership  = require("../middleware/checkCampGroundOwnership");
 
 
 router.get("/", (req, res) => {
@@ -46,7 +47,7 @@ router.post("/", isLoggedIn, (req, res) => {
 
 });
 
-
+//GET CAMPGROUND BY ID
 router.get('/:id', (req, res) => {
     //Find the campground with provided id
     //Then populate the comments from the ids that are associated with the campGround
@@ -60,20 +61,21 @@ router.get('/:id', (req, res) => {
     });
 });
 
-//EDIT CAMPGROUND
-router.get("/:id/edit", (req, res) => {
+//EDIT CAMPGROUND FORM
+//checkCampGroundOwnership is a self-made middleware imported from /middleware/checkCampGroundOwnership
+router.get("/:id/edit", checkCampGroundOwnership, (req, res) => {
     CampGround.findById(req.params.id, (err, foundCampGround) => {
         if(err) {
             console.log(err);
+            res.redirect("back");
         } else {
-            res.render("campgrounds/edit", { campground: foundCampGround });
+            res.render("campgrounds/edit", { campground: foundCampGround });    
         }
     });
-    
 });
 
 //UPDATE CAMPGROUND 
-router.put("/:id/", (req, res) => {
+router.put("/:id/", checkCampGroundOwnership, (req, res) => {
     //Find and update the correct campground
     CampGround.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampGround) => {
         if(err) {
@@ -84,6 +86,18 @@ router.put("/:id/", (req, res) => {
     });
 });
 
+
+//DESTROY CAMPGROUND
+router.delete("/:id", (req, res) => {
+  CampGround.findByIdAndRemove(req.params.id, (err) => {
+    if(err) {
+        res.redirect("/campgrounds");
+    }   else {
+        res.redirect("/campgrounds");
+    }
+  });
+  res.render("/campgrounds");  
+});
 
 
 module.exports = router;

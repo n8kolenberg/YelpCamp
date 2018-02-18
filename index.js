@@ -27,7 +27,7 @@ app.use(express.static(__dirname + '/public'));
 // console.log(__dirname); Users/n.kolenberg/documents/code/projects/Express/YelpCamp/v3
 
 app.use(methodOverride("_method"));
-seedDB();
+// seedDB(); //Seed the database
 
 
 /* ======================================
@@ -78,6 +78,9 @@ with this string, in the below case: '/campgrounds'
 I can then remove '/campgrounds from the routes in campgroundRoutes.js'*/
 app.use("/campgrounds", campgroundRoutes);
 app.use(commentRoutes);
+
+
+
 
 
 
