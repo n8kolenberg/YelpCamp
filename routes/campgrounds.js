@@ -88,15 +88,14 @@ router.put("/:id/", checkCampGroundOwnership, (req, res) => {
 
 
 //DESTROY CAMPGROUND
-router.delete("/:id", (req, res) => {
+router.delete("/:id", checkCampGroundOwnership, (req, res) => {
   CampGround.findByIdAndRemove(req.params.id, (err) => {
     if(err) {
         res.redirect("/campgrounds");
     }   else {
         res.redirect("/campgrounds");
     }
-  });
-  res.render("/campgrounds");  
+  }); 
 });
 
 

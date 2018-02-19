@@ -39,10 +39,12 @@
                     </strong>
                   </em>
                 </h5>
+                <% if(currentUser && foundCamp.author.id.equals(currentUser._id)) {%>
                 <a href="/campgrounds/<%=foundCamp._id%>/edit" class="btn btn-warning">Edit</a>
-                <form action="/<%= foundCamp._id%>?_method=DELETE" method="POST" id="delete-form">
+                <form action="/campgrounds/<%= foundCamp._id %>?_method=DELETE" method="post" id="delete-form">
                   <button class="btn btn-danger">Delete</button>
                 </form>
+                <% } %>
               </div>
             </div>
           </div>
@@ -59,12 +61,22 @@
               <ul class="list-group list-group-flush">
                 <% foundCamp.comments.forEach((comment)=>{ %>
                   <li class="list-group-item">
-                    <p>
-                      <strong>
-                        <%= comment.author.username %>
-                      </strong> -
-                      <%= comment.text %>
-                    </p>
+                    <div class="d-flex justify-content-between">
+                        <p>
+                          <strong>
+                            <%= comment.author.username %>
+                          </strong> -
+                          <%= comment.text %>
+                        </p>
+                      <div>
+                        <a href="/comments/<%= comment._id %>/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="" method="post" id="delete-form">
+                          <button class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                      </div>
+                      
+                    </div>
+                    
                     <p class="card-text">
                       <small class="text-muted">Left 3 days ago %></small>
                     </p>

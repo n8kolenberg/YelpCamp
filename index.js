@@ -60,6 +60,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next) => {
     //req.user will have the username and user id 
     //of the user that is signed in and undefined otherwise
+    //You can then user 'currentUser' as the variable in the routes
     res.locals.currentUser = req.user;
     //We need to add next() so that it goes to the routehandler
     next();

@@ -55,4 +55,52 @@ router.post('/campgrounds/:id/comments', isLoggedIn, (req, res) => {
     }); //End Campground.findById()
 }); //End app.get()
 
+
+//EDIT ROUTE FOR COMMENTS
+// router.get("/campgrounds/:id/comments/:commentid/edit", (req, res) => {
+//   CampGround.findById(req.params.id, (err, campground) => {
+//      if(err) {
+//          console.log(err);
+//          res.redirect("back");
+//      } else {
+//         //we need to find the comment with the id
+//         Comment.findById(req.params.commentid, (err, comment) => {
+//            if(err) {
+//                console.log(err);
+//                res.redirect("back");
+//            } else {
+//                res.render("/comments/edit", {comment: comment});
+//            }
+//         });
+//      }
+//   });  
+// });
+
+router.get("/comments/:id/edit", (req, res) => {
+   Comment.findById(req.params.id, (err, comment) => {
+       if(err) {
+           console.log(err);
+           res.redirect("back");
+       } else {
+        res.render("comments/edit", {comment: comment});
+       }
+   });  
+});
+
+
+
+//UPDATE COMMENT
+router.put("/comments/:id", (req, res) => {
+   Comment.findByIdAndUpdate(req.params.id, req.body.comment, (err, comment) => {
+       if(err) {
+           console.log(err);
+           res.redirect("back");
+       } else {
+           res.redirect("../campgrounds/campgrounds");
+       }
+   }) 
+});
+
+
+
 module.exports = router;
