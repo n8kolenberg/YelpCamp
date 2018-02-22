@@ -41,7 +41,7 @@
                 </h5>
                 <% if(currentUser && foundCamp.author.id.equals(currentUser._id)) {%>
                 <a href="/campgrounds/<%=foundCamp._id%>/edit" class="btn btn-warning">Edit</a>
-                <form action="/campgrounds/<%= foundCamp._id %>?_method=DELETE" method="post" id="delete-form">
+                <form action="/campgrounds/<%= foundCamp._id %>?_method=DELETE" method="post" class="delete-form">
                   <button class="btn btn-danger">Delete</button>
                 </form>
                 <% } %>
@@ -68,12 +68,19 @@
                           </strong> -
                           <%= comment.text %>
                         </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)) {%>
                       <div>
-                        <a href="/comments/<%= comment._id %>/edit" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="" method="post" id="delete-form">
+                        <a 
+                        href="/campgrounds/<%= foundCamp._id %>/comments/<%= comment._id %>/edit" 
+                        class="btn btn-warning btn-sm">
+                          Edit
+                        </a>
+                        
+                        <form action="/campgrounds/<%= foundCamp._id %>/comments/<%= comment._id%>?_method=DELETE" method="post" class="delete-form">
                           <button class="btn btn-danger btn-sm">Delete</button>
                         </form>
                       </div>
+                      <%}%>
                       
                     </div>
                     

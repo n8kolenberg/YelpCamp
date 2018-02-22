@@ -15,7 +15,7 @@ a {
     color: steelblue;
 }
 
-#delete-form {
+.delete-form {
     display: inline;
 }
 /* img {
