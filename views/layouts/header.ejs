@@ -1,11 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>YelpCamp</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="/stylesheets/app.css">
 </head>
+
 <body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a href="/" class="navbar-brand">YelpCamp</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <% if(!currentUser) {%>
+            <a class="nav-item nav-link" href="/login">Login</a>
+            <a class="nav-item nav-link" href="/register">Sign Up</a>
+            <%} else {%>
+              <a class="nav-item nav-link" href="#">Signed in as:
+                <%= currentUser.username %>
+              </a>
+              <a class="nav-item nav-link disabled" href="/logout">Logout</a>
+              <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-
+  <div class="container">
+    <!-- error and success are empty arrays, so we have to also check whether they have a length-->
+    <% if(error && error.length > 0) {%>
+      <div class="alert alert-danger mt-3" role="alert">
+        <%= error %>
+      </div>
+      <% } %>
+      <% if(success && success.length >0) {%>
+      <div class="alert alert-success mt-3" role="alert">
+        <%= success %>
+      </div>
+      <% } %>
+      <% if(info && info.length >0) {%>
+        <div class="alert alert-info mt-3" role="alert">
+          <%= info %>
+        </div>
+        <% } %>
+  </div>

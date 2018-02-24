@@ -1,5 +1,4 @@
 <% include ../layouts/header %>
-  <% include ../layouts/nav %>
 
     <div class="container">
       <div class="row">
@@ -75,15 +74,13 @@
                         class="btn btn-warning btn-sm">
                           Edit
                         </a>
-                        
+              
                         <form action="/campgrounds/<%= foundCamp._id %>/comments/<%= comment._id%>?_method=DELETE" method="post" class="delete-form">
                           <button class="btn btn-danger btn-sm">Delete</button>
                         </form>
                       </div>
                       <%}%>
-                      
                     </div>
-                    
                     <p class="card-text">
                       <small class="text-muted">Left 3 days ago %></small>
                     </p>
