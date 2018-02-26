@@ -1,6 +1,5 @@
 <% include ../layouts/header %>
 
-    <div class="container">
       <div class="row">
         <div class="text-center col-md-3">
           <p class="lead">YelpCamp</p>
@@ -24,7 +23,7 @@
                 </h4>
               </div>
               <div class="card-subtitle">
-                <h6>$9.00/night</h6>
+                <h6>$<%= foundCamp.price %> per night</h6>
               </div>
 
               <div class="card-text">
@@ -91,6 +90,5 @@
           </div>
         </div>
       </div>
-    </div>
 
     <% include ../layouts/footer %>

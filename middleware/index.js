@@ -59,7 +59,7 @@ middlewareObj.checkCommentOwnership = (req, res, next) => {
             //if there's an error or the comment doesn't exist i.e. the db returns null (!null = true)
             if (err || !foundComment) {
                 console.log(err);
-                req.flash("error", "Wooops! Seems like we couldn't find that comment you were trying to edit. Maybe try again later?")                
+                req.flash("error", "Wooops! Seems like we couldn't find that comment you were trying to edit. Maybe try again?")                
                 res.redirect("back");
             } else {
                 //Does user own comment?

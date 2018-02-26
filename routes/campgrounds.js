@@ -16,7 +16,7 @@ router.get("/", (req, res) => {
             console.log("There was an error getting the campgrounds: ");
             console.log(err);
         } else {
-            res.render('campgrounds/campgrounds', { campGrounds: allcampGrounds, currentUser: req.user });
+            res.render('campgrounds/campgrounds', { campGrounds: allcampGrounds, page: "campgrounds" });
         }
     });
 });
@@ -37,6 +37,7 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
     let newCampGround = {
         name: req.body.name,
         image: req.body.image,
+        price: req.body.price,
         description: req.body.description,
         author: author
     };
@@ -71,7 +72,7 @@ router.get('/:id', (req, res) => {
 });
 
 //EDIT CAMPGROUND FORM
-//checkCampGroundOwnership is a self-made middleware imported from /middleware/checkCampGroundOwnership
+//middleware.checkCampGroundOwnership is a self-made middleware imported from /middleware/index.js
 router.get("/:id/edit", middleware.checkCampGroundOwnership, (req, res) => {
     CampGround.findById(req.params.id, (err, foundCampGround) => {
         if(err) {
