@@ -1,0 +1,42 @@
+<% include ../layouts/header %>
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-light mt-3">
+            <div class="card-header" style="text-align: center;">
+                <h4>
+                    <%= user.firstName + " " + user.lastName %>
+                </h4>
+            </div>
+            <div class="card-body" style="text-align: center;">
+                <img style="width: 60%; border-radius: 50%" src="<%=user.avatar%>" alt="<%=user.firstName%>'s avatar image'">
+                <div class="card-title">
+                    <a href="mailto:<%= user.email %>">
+                        <%= user.email %>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+    <div class="col-md-8">
+        <h3><%=user.username%>'s campgrounds:</h3>
+        <ul style="list-style: none;">
+        <%campgrounds.forEach((campground) => {%>
+            <li>
+                <a href="/campgrounds/<%=campground.id%>">
+                    <%= campground.name %>
+                </a>
+                <img style="border-radius: 10px; width: 250px;" src="<%= campground.image %>" alt="Campground image">
+            </li>
+            
+            
+        <% }); %>
+        </ul>
+    </div>
+</div>
+
+<% include ../layouts/footer %>

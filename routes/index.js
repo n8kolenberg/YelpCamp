@@ -1,6 +1,7 @@
 const express       = require("express"),
       router        = express.Router({mergeParams: true}),
       passport      = require("passport"),
+      CampGround    = require("../models/campground"),   
       User          = require("../models/user");
 
 router.get('/', (req, res) => {
@@ -18,7 +19,11 @@ router.get("/register", (req, res) => {
 //Handle sign up logic
 router.post("/register", (req, res) => {
     let newUser = new User({
-        username: req.body.username
+        username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        avatar: req.body.avatar,
+        email: req.body.email
     });
 
     User.register(newUser, req.body.password, (err, user) => {
@@ -52,6 +57,27 @@ router.get("/logout", (req, res) => {
     req.logout();
     req.flash("success", "Logged you out!");
     res.redirect("/campgrounds");
+});
+
+
+//User Profile
+router.get("/users/:id", (req, res) => {
+    User.findById(req.params.id, (err, foundUser) => {
+        if(err) {
+            req.flash("error", "Woops! We had some trouble with finding that user...");
+            res.redirect("back");
+        } else {
+            CampGround.find().where('author.id').equals(foundUser._id).exec((err, campgrounds) => {
+                if(err) {
+                    req.flash("error", "Woops! Someting went wrong...");
+                    res.redirect("back");
+                } else {
+                    res.render("users/show", { user: foundUser, campgrounds: campgrounds });
+                }         
+            });
+            
+        }
+    })
 });
 
 module.exports = router;

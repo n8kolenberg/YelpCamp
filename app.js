@@ -32,6 +32,10 @@ app.use(flash()); //This MUST be before the passport configuration
 // seedDB(); //Seed the database
 
 
+/* Incorporating moment.js 
+Now moment is available for use in all of your view files via the variable named moment*/
+app.locals.moment = require("moment");
+
 /* ======================================
    PASSPORT CONFIG
    ====================================== */
@@ -71,6 +75,7 @@ app.use((req, res, next) => {
     res.locals.error = req.flash("error");
     res.locals.success = req.flash("success");
     res.locals.info = req.flash("info");
+
     next();
 });
 

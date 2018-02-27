@@ -4,7 +4,7 @@
         <div class="text-center col-md-3">
           <p class="lead">YelpCamp</p>
           <div class="list-group">
-            <li class="list-group-item active">Info 1</li>
+            <li class="list-group-item"> <a href="/campgrounds"> View all campgrounds </a></li>
             <li class="list-group-item">Info 2</li>
             <li class="list-group-item">Info 3</li>
           </div>
@@ -33,12 +33,13 @@
                 <h5>
                   <em>Submitted by:
                     <strong>
-                      <%= foundCamp.author.username %>
+                      <a href="/users/<%=foundCamp.author.id%>"><%= foundCamp.author.username %></a>
                     </strong>
                   </em>
+                  <small> | created <%= moment(foundCamp.createdAt).fromNow() %></small>
                 </h5>
                 <% if(currentUser && foundCamp.author.id.equals(currentUser._id)) {%>
-                <a href="/campgrounds/<%=foundCamp._id%>/edit" class="btn btn-warning">Edit</a>
+                <a href="/campgrounds/<%=foundCamp.id%>/edit" class="btn btn-warning">Edit</a>
                 <form action="/campgrounds/<%= foundCamp._id %>?_method=DELETE" method="post" class="delete-form">
                   <button class="btn btn-danger">Delete</button>
                 </form>
@@ -62,7 +63,7 @@
                     <div class="d-flex justify-content-between">
                         <p>
                           <strong>
-                            <%= comment.author.username %>
+                            <a href="/users/<%=comment.author.id%>"><%= comment.author.username %></a>
                           </strong> -
                           <%= comment.text %>
                         </p>
@@ -81,7 +82,7 @@
                       <%}%>
                     </div>
                     <p class="card-text">
-                      <small class="text-muted">Left 3 days ago %></small>
+                      <small class="text-muted">Left <%= moment(comment.createdAt).fromNow() %></small>
                     </p>
                   </li>
                   <% }); %>
