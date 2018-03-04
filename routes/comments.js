@@ -1,12 +1,12 @@
   const express = require("express"),
-      router = express.Router(),
-      CampGround = require("../models/campground"),
-      Comment = require("../models/comment"),
+        router = express.Router(),
+        CampGround = require("../models/campground"),
+        Comment = require("../models/comment"),
       //Because we called our middleware file index.js, we don't need to specify it in the 
       //require statement. Index.js is a special name where unless otherwise named, the program
       //will always look for a file named index.js - see nodemodules/express folder as an example
       //We don't define a name, but it will be looking for nodemodules/express/index.js
-      middleware = require("../middleware");
+        middleware = require("../middleware");
   // isLoggedIn 				= require("../middleware/loggedIn"),
   // checkCommentOwnership   = require("../middleware/checkCommentOwnership");
 
@@ -56,7 +56,7 @@
                       //Connect new comment to campground
                       campground.comments.push(newComment._id);
                       campground.save();
-                      req.flash("success", "Wicked! Thanks for adding a comment to this campground!");
+                      req.flash("success", `Wicked! Thanks for adding a comment to this campground, ${req.user.username}!`);
                       //Redirect back to campground show page
                       res.redirect(`/campgrounds/${campground._id}`);
                   }
