@@ -1,3 +1,4 @@
+
 const express = require("express"),
     router = express.Router({
         mergeParams: true
@@ -70,6 +71,7 @@ var storage = multer.diskStorage({
 
 
 //ROUTES
+
 router.get("/", (req, res) => {
     let campGrounds = CampGround.find({}, (err, allcampGrounds) => {
         if (err) {
@@ -80,6 +82,8 @@ router.get("/", (req, res) => {
                 campGrounds: allcampGrounds,
                 page: "campgrounds"
             });
+
+
         }
     });
 });
@@ -120,6 +124,7 @@ router.post("/", middleware.isLoggedIn, upload.single("image"), /*image coming f
 
 
 
+
 });
 
 //GET CAMPGROUND BY ID
@@ -134,9 +139,11 @@ router.get('/:id', (req, res) => {
             req.flash("error", "Campground not found!");
             res.redirect("back");
         } else {
+
             res.render("campgrounds/show", {
                 foundCamp: foundCamp
             });
+
         }
     });
 });
@@ -145,19 +152,24 @@ router.get('/:id', (req, res) => {
 //middleware.checkCampGroundOwnership is a self-made middleware imported from /middleware/index.js
 router.get("/:id/edit", middleware.checkCampGroundOwnership, (req, res) => {
     CampGround.findById(req.params.id, (err, foundCampGround) => {
+
         if (err) {
+
             console.log(err);
             req.flash("error", "Woops! Now that's embarrassing... We couldn't find that campground in our database. Maybe try again later?");
             res.redirect("back");
         } else {
+
             res.render("campgrounds/edit", {
                 campground: foundCampGround
             });
+
         }
     });
 });
 
 //UPDATE CAMPGROUND 
+
 router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"), (req, res) => {
     // let updateCampground = (id, campBody) => {
     //     CampGround.findByIdAndUpdate(id, campBody, (err, campground) => {
@@ -199,6 +211,7 @@ router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"),
             res.redirect('/campgrounds/' + campground.id);
         });
     });
+
 
 });
 
