@@ -37,13 +37,7 @@ const express = require("express"),
 //         fileFilter: imageFilter
 //     });
 
-// //Cloudinary config
-// const cloudinary = require('cloudinary');
-// cloudinary.config({
-//     cloud_name: 'n8dawg',
-//     api_key: "426312891817314", //process.env.CLOUDINARY_API_KEY,
-//     api_secret: "NqLfaUlu6nzInjz67sWONIJOLyQ"//process.env.CLOUDINARY_API_SECRET
-// });
+
 
 var storage = multer.diskStorage({
     filename: function(req, file, callback) {
