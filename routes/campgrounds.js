@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
 const express = require("express"),
     router = express.Router({
         mergeParams: true
@@ -77,20 +73,13 @@ router.get("/", (req, res) => {
                 campGrounds: allcampGrounds,
                 page: "campgrounds"
             });
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
         }
     });
 });
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
 //This renders a form that allows the below post method to be called
 router.get("/new", middleware.isLoggedIn, (req, res) => {
     res.render("campgrounds/new");
@@ -139,17 +128,11 @@ router.get('/:id', (req, res) => {
             req.flash("error", "Campground not found!");
             res.redirect("back");
         } else {
-<<<<<<< HEAD
-            res.render("campgrounds/show", {
-                foundCamp: foundCamp
-            });
-=======
 
             res.render("campgrounds/show", {
                 foundCamp: foundCamp
             });
 
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
         }
     });
 });
@@ -158,37 +141,19 @@ router.get('/:id', (req, res) => {
 //middleware.checkCampGroundOwnership is a self-made middleware imported from /middleware/index.js
 router.get("/:id/edit", middleware.checkCampGroundOwnership, (req, res) => {
     CampGround.findById(req.params.id, (err, foundCampGround) => {
-<<<<<<< HEAD
         if (err) {
-=======
-
-        if (err) {
-
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
             console.log(err);
             req.flash("error", "Woops! Now that's embarrassing... We couldn't find that campground in our database. Maybe try again later?");
             res.redirect("back");
         } else {
-<<<<<<< HEAD
             res.render("campgrounds/edit", {
                 campground: foundCampGround
             });
-=======
-
-            res.render("campgrounds/edit", {
-                campground: foundCampGround
-            });
-
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
         }
     });
 });
 
 //UPDATE CAMPGROUND 
-<<<<<<< HEAD
-=======
-
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
 router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"), (req, res) => {
 
     //If the user uploads a new image.
@@ -246,10 +211,6 @@ router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"),
         });
     } 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
 });
 
 

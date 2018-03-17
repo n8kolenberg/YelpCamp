@@ -4,10 +4,6 @@ let campGroundSchema = new mongoose.Schema({
     name: String,
     price: String,
     image: String,
-<<<<<<< HEAD
-=======
-    image_id: String,
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
     description: String,
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
