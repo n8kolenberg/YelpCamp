@@ -77,7 +77,7 @@ router.get("/users/:id", (req, res) => {
     User.findById(req.params.id, (err, foundUser) => {
         // eval(require("locus"));
         if(err || !foundUser) {
-            req.flash("error", "Woops! Unfortunately, that user doesn't exist anymore");
+            req.flash("error", "Woops! Unfortunately, that user doesn't seem to exist anymore");
             res.redirect("/campgrounds");
         } else {
             CampGround.find().where('author.id').equals(foundUser._id).exec((err, campgrounds) => {
@@ -253,9 +253,7 @@ Kindly,
 Your friend N8 at YelpCamp
                 
 
-`
-            };
-            
+            `};
             mailgun.messages().send(maildata, (err, body) => {
                 if (err) {
                     console.log(err);
