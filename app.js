@@ -10,6 +10,7 @@ const express                   = require('express'),
       passportLocalMongoose     = require("passport-local-mongoose"),
       methodOverride            = require("method-override"),
       flash                     = require("connect-flash"),
+      dotenv                    = require("dotenv").config(),
       seedDB                    = require('./seeds');
 
 //Require routes
@@ -104,8 +105,8 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(3000, () => {
-    console.log('YelpCamp listening on port 3000!');
+app.listen(process.env.localhost, () => {
+    console.log(`YelpCamp listening on port ${process.env.localhost}!`);
 });
 
 

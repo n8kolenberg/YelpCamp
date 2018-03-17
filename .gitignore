@@ -1,0 +1,5 @@
+.env
+node_modules
+cats.js
+.vscode
+.idea
