@@ -73,10 +73,12 @@ router.get("/logout", (req, res) => {
 
 //User Profile
 router.get("/users/:id", (req, res) => {
+    
     User.findById(req.params.id, (err, foundUser) => {
-        if(err) {
-            req.flash("error", "Woops! We had some trouble with finding that user...");
-            res.redirect("back");
+        // eval(require("locus"));
+        if(err || !foundUser) {
+            req.flash("error", "Woops! Unfortunately, that user doesn't exist anymore");
+            res.redirect("/campgrounds");
         } else {
             CampGround.find().where('author.id').equals(foundUser._id).exec((err, campgrounds) => {
                 if(err) {
