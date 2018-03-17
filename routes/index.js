@@ -171,7 +171,7 @@ If you did not request this, please ignore this email and your password will rem
                 if(err) {
                     console.log(err);
                 }
-                console.log("mail sent");
+                console.log("Password reset email sent");
                 req.flash("success", `An email has been sent to ${user.email} with further instructions`);
                 done(err, "done");
             });
@@ -184,7 +184,7 @@ If you did not request this, please ignore this email and your password will rem
 
 
 
-//RESET TOKEN URL
+//RESET TOKEN URL in EMAIL
 router.get("/reset/:token", (req, res) => {
     //Find the user with the token that has been set on them when they asked for a pw reset
     //and where the resetPassword token expires with a time greater than right now
@@ -195,7 +195,7 @@ router.get("/reset/:token", (req, res) => {
            return res.redirect("/forgot");
        }
        //RENDER CREATE NEW PASSWORD FORM
-       res.render("reset", {token : req.params.token});
+       res.render("users/reset", {token : req.params.token});
    });
 });
 
@@ -242,24 +242,26 @@ router.post("/reset/:token", (req, res) => {
             let maildata = {
                 from: 'N8 at YelpCamp <nkolenberg@gmail.com>',
                 to: user.email,
-                subject: 'YelpCamp Password has been changed',
+                subject: 'Your YelpCamp password has been changed',
                 text: `
-Hi ${user.name},
+Hi ${user.firstName},
 
-This is a confirmation that the password for your account ${user.email} has just been changed. 
+This is a confirmation that the password for your account - ${user.email} has just been changed. 
 
-Kindly,
 
-Your friend N8 at YelpCamp
-                
+Happy Camping!
 
-            `};
+Your friend N8 at YelpCamp       
+
+`
+            };
+            
             mailgun.messages().send(maildata, (err, body) => {
                 if (err) {
                     console.log(err);
                 }
                 console.log("Success mail sent");
-                req.flash("success", `An email has been sent to ${user.email} with further instructions`);
+                req.flash("success", `Password updated successfully!`);
                 done(err, "done");
             });
         }],

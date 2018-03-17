@@ -11,9 +11,19 @@
   "dependencies": {
     "async": "^2.6.0",
     "body-parser": "^1.18.2",
+<<<<<<< HEAD
     "cloudinary": "^1.10.0",
     "connect-flash": "^0.1.1",
     "dotenv": "^5.0.1",
+=======
+<<<<<<< HEAD
+    "cloudinary": "^1.10.0",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^5.0.1",
+=======
+    "connect-flash": "^0.1.1",
+>>>>>>> a1143853c3e3886d41a717f65fc47d8873c83e7f
+>>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
@@ -22,6 +32,10 @@
     "method-override": "^2.3.10",
     "moment": "^2.20.1",
     "mongoose": "^5.0.1",
+<<<<<<< HEAD
+    "multer": "^1.3.0",
+=======
+<<<<<<< HEAD
     "multer": "^1.3.0",
     "nodemailer": "^4.6.0",
     "passport": "^0.4.0",
@@ -31,6 +45,21 @@
   },
   "devDependencies": {
     "nodemon": "^1.17.1",
+=======
+>>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
+    "nodemailer": "^4.6.0",
+    "nodemon": "^1.15.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^4.5.0"
+  },
+  "devDependencies": {
+<<<<<<< HEAD
+    "nodemon": "^1.17.1",
+=======
+    "nodemon": "^1.15.1",
+>>>>>>> a1143853c3e3886d41a717f65fc47d8873c83e7f
+>>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
     "nodeom": "0.0.1"
   }
 }
