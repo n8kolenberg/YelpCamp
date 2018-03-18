@@ -50,11 +50,18 @@
 
   <div class="container">
     <!-- error and success are empty arrays, so we have to also check whether they have a length-->
-    <% if(error && error.length > 0) {%>
-      <div class="alert alert-danger mt-3" role="alert">
-        <%= error %>
+    <% if(error && error.length > 0) { %>
+        <div class="alert alert-danger mt-3" role="alert">
+          <% if(error.length === 1) { %>
+            <strong><%= error %></strong>
+          <% }  else { %>
+            <ul>
+              <% error.forEach(function(err) { %>
+              <li> <strong><%= err %></strong></li>
+            <% }); %>
+            </ul>
+            <% }}%>
       </div>
-    <% } %>
     <% if(success && success.length >0) {%>
       <div class="alert alert-success mt-3" role="alert">
         <%= success %>

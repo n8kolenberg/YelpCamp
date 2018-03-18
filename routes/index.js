@@ -11,6 +11,9 @@ const express       = require("express"),
       domain        = "sandbox4a8684bd307f48fbbd154e2f2da15372.mailgun.org",
       mailgun       = require('mailgun-js')({ apiKey: api_key, domain: domain });
 
+      //Express-validation http://tinyurl.com/ybpgyt76
+const { check, validationResult } = require('express-validator/check');
+const { matchedData, sanitize } = require('express-validator/filter');
 
 
 
@@ -28,8 +31,33 @@ router.get("/register", (req, res) => {
 });
 
 //Handle sign up logic
-router.post("/register", (req, res) => {
-    let newUser = new User({
+router.post("/register", /*Validation middleware*/[
+    check("email").isEmail().withMessage("Please fill in a valid email address").trim().normalizeEmail(),
+    check("password", "Passwords should be at least 5 characters long and contain one number.")
+    .isLength({min: 5})
+    .matches(/\d/)
+], (req, res) => {
+    // Get the validation result whenever you want
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        // eval(require("locus"));
+        let errorObj = errors.mapped();
+        let errorMessages = [];
+        let errorNames = Object.keys(errorObj);
+        // eval(require("locus"));
+        errorNames.forEach((error, i) => {
+           errorMessages.push(errorObj[errorNames[i]].msg);
+        });
+        
+        req.flash("error", errorMessages);
+        return res.redirect("back");
+    }
+    
+    // matchedData returns only the subset of data validated by the middleware
+    const newUser = matchedData(req);
+    eval(require("locus"));
+
+    let newUser2 = new User({
         username: req.body.username,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
