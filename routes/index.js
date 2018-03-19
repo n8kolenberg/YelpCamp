@@ -12,8 +12,8 @@ const express       = require("express"),
       mailgun       = require('mailgun-js')({ apiKey: api_key, domain: domain });
 
       //Express-validation http://tinyurl.com/ybpgyt76
-const { check, validationResult } = require('express-validator/check');
-const { matchedData, sanitize } = require('express-validator/filter');
+const { check, validationResult, body } = require('express-validator/check');
+const { matchedData, sanitize, sanitizeBody } = require('express-validator/filter');
 
 
 
@@ -32,23 +32,31 @@ router.get("/register", (req, res) => {
 
 //Handle sign up logic
 router.post("/register", /*Validation middleware*/[
-    check("email").isEmail().withMessage("Please fill in a valid email address").trim().normalizeEmail(),
-    check("password", "Passwords should be at least 5 characters long and contain one number.")
+    body("email").isEmail().withMessage("Please fill in a valid email address").trim().normalizeEmail(),
+    body("username", "Username is required"),
+    body("password", "Passwords should be at least 5 characters long and contain one number.")
     .isLength({min: 5})
     .matches(/\d/)
-], (req, res) => {
-    // Get the validation result whenever you want
+], sanitizeBody("email").trim(), (req, res) => {
+    //Get the validation errors 
     const errors = validationResult(req);
+    //If there are errors
     if (!errors.isEmpty()) {
-        // eval(require("locus"));
-        let errorObj = errors.mapped();
-        let errorMessages = [];
-        let errorNames = Object.keys(errorObj);
-        // eval(require("locus"));
-        errorNames.forEach((error, i) => {
-           errorMessages.push(errorObj[errorNames[i]].msg);
+        //First, let's deconstruct them into an object for each validation we're checking
+        let {email, username, password} = errors.mapped();
+        //We create an array to store them in for the flash messages
+        let errorMessages = [email, username, password]
+        errorMessages = errorMessages.forEach((err, i) => {
+            if(typeof err !== undefined) {
+                errorMessages.splice(i, 1, err.msg);
+            }
         });
+        eval(require("locus"));
         
+        //Then we add the individual error messages to an array
+        // errorMessages.push(email["msg"]);
+        eval(require("locus"));     
+        //And flash them  
         req.flash("error", errorMessages);
         return res.redirect("back");
     }
@@ -56,14 +64,6 @@ router.post("/register", /*Validation middleware*/[
     // matchedData returns only the subset of data validated by the middleware
     const newUser = matchedData(req);
     eval(require("locus"));
-
-    let newUser2 = new User({
-        username: req.body.username,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        avatar: req.body.avatar,
-        email: req.body.email
-    });
 
     User.register(newUser, req.body.password, (err, user) => {
         if (err) {
