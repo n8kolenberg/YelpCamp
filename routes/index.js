@@ -105,7 +105,8 @@ router.get("/login", (req, res) => {
 router.post("/login", passport.authenticate("local", {
     successRedirect: "/campgrounds",
     failureRedirect: "/login"
-}), (req, res) => {});
+}), (req, res) => {
+});
 
 
 
@@ -122,12 +123,11 @@ router.get("/logout", (req, res) => {
 router.get("/users/:id", (req, res) => {
     
     User.findById(req.params.id, (err, foundUser) => {
-        // eval(require("locus"));
         if(err || !foundUser) {
             req.flash("error", "Woops! Unfortunately, that user doesn't seem to exist anymore");
             res.redirect("/campgrounds");
         } else {
-            CampGround.find().where('author.id').equals(foundUser._id).exec((err, campgrounds) => {
+            CampGround.find({}, null, {sort: {"createdAt": -1}}).where('author.id').equals(foundUser._id).exec((err, campgrounds) => {
                 if(err) {
                     req.flash("error", "Woops! Someting went wrong...");
                     res.redirect("back");
