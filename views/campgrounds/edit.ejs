@@ -8,16 +8,6 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
 
-<<<<<<< HEAD
-                <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="post">
-
-                    <div class="form-group">
-                        <input class="form-control" type="text" value="<%= campground.name %>" name="campground[name]">
-                    </div>
-
-                    <div class="form-group">
-                        <input class="form-control" type="text" value="<%= campground.image %>" name="campground[image]">
-=======
                 <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="post" enctype="multipart/form-data">
 
                     <div class="form-group">
@@ -26,7 +16,6 @@
 
                     <div class="form-group">
                         <input class="form-control" type="file" name="image" accept="image/*">
->>>>>>> 814d2857600aa433b25e85e9f9260d851e62397e
                     </div>
 
                     <div class="form-group">
