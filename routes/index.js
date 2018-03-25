@@ -25,45 +25,64 @@ router.get('/', (req, res) => {
 /* ======================================
    AUTH ROUTES
    ====================================== */
-//Show the register form
+/** SHOW THE REGISTER FORM ======= */
 router.get("/register", (req, res) => {
     res.render("register", {page: "register"});
 });
 
-//Handle sign up logic
+/** HANDLE THE SIGN UP LOGIC ======= */
 router.post("/register", /*Validation middleware*/[
-    body("email").isEmail().withMessage("Please fill in a valid email address").trim().normalizeEmail(),
-    body("username", "Username is required"),
+    body("email").isEmail().withMessage("Please fill in a valid email address").trim().normalizeEmail()
+    .custom((value, {req}) => {
+        //Checking to see if another user already signed up with the same email address
+        return User.findOne({email: value}).then(user => {
+            //if the user is not null, i.e. the user already exists
+            //it translates to !(!null = true) = false
+            if(!(!user)) {
+                throw new Error(`${value} is already in use`);
+            }
+         })
+    }),
+    body("username", "A username of at least 3 characters is required").isLength({min: 3})
+    .custom((value, {req}) => {
+        //Checking to see if another user already signed up with the same username
+        return User.findOne({username: value}).then(user => {
+            //if the user is not null, i.e. the user already exists
+            //it translates to !(!null = true) = false
+            if (!(!user)) {
+                throw new Error(`${value} is already in use`);
+            }
+        });
+    }),
     body("password", "Passwords should be at least 5 characters long and contain one number.")
     .isLength({min: 5})
     .matches(/\d/)
-], sanitizeBody("email").trim(), (req, res) => {
+], /*Trimming the email*/sanitizeBody("email").trim(), (req, res) => {
     //Get the validation errors 
     const errors = validationResult(req);
     //If there are errors
     if (!errors.isEmpty()) {
         //First, let's deconstruct them into an object for each validation we're checking
         let {email, username, password} = errors.mapped();
-        //We create an array to store them in for the flash messages
-        let errorMessages = [email, username, password]
-        errorMessages = errorMessages.forEach((err, i) => {
-            if(typeof err !== undefined) {
-                errorMessages.splice(i, 1, err.msg);
+
+        //We create an array to store the flash messages
+        let errorArr = [email, username, password];
+        let errorMsg = []; //This array will contain the specific error messages
+        errorArr.forEach((err, i) => {
+            if(err !== undefined) {
+                errorMsg.push(err.msg);
             }
-        });
-        eval(require("locus"));
+        });  
         
-        //Then we add the individual error messages to an array
-        // errorMessages.push(email["msg"]);
-        eval(require("locus"));     
-        //And flash them  
-        req.flash("error", errorMessages);
+        //And then we flash them  
+        req.flash("error", errorMsg);
         return res.redirect("back");
     }
     
     // matchedData returns only the subset of data validated by the middleware
-    const newUser = matchedData(req);
-    eval(require("locus"));
+    let newUser = matchedData(req);
+    newUser.firstName = req.body.firstName;
+    newUser.lastName = req.body.lastName;
 
     User.register(newUser, req.body.password, (err, user) => {
         if (err) {
@@ -77,12 +96,12 @@ router.post("/register", /*Validation middleware*/[
     });
 });
 
-//Show the login form
+/** SHOW THE LOGIN FORM ======= */
 router.get("/login", (req, res) => {
     res.render("login", {page: "login"});
 });
 
-//Handle the login logic
+/** HANDLE THE LOGIN LOGIC ======= */
 router.post("/login", passport.authenticate("local", {
     successRedirect: "/campgrounds",
     failureRedirect: "/login"
@@ -90,7 +109,7 @@ router.post("/login", passport.authenticate("local", {
 
 
 
-//Logout routes
+/** THE LOGOUT ROUTE ======= */
 router.get("/logout", (req, res) => {
     // console.log(req.user);
     req.logout();
@@ -99,7 +118,7 @@ router.get("/logout", (req, res) => {
 });
 
 
-//User Profile
+/** SHOW THE USER PROFILE ======= */
 router.get("/users/:id", (req, res) => {
     
     User.findById(req.params.id, (err, foundUser) => {
@@ -122,12 +141,12 @@ router.get("/users/:id", (req, res) => {
 });
 
 
-//FORGOT PASSWORD FORM
+/** SHOW THE FORGOT PASSWORD FORM ======= */
 router.get("/forgot", (req, res)=>{
     res.render("users/forgot");
 });
 
-//FORGOT PASSWORD LOGIC
+/** FORGOT PASSWORD LOGIC ======= */
 router.post("/forgot", (req, res, next)=>{
     async.waterfall([
         /*First functtion*/
@@ -211,8 +230,7 @@ If you did not request this, please ignore this email and your password will rem
 });
 
 
-
-//RESET TOKEN URL in EMAIL
+/** RESET TOKEN URL IN EMAIL ======= */
 router.get("/reset/:token", (req, res) => {
     //Find the user with the token that has been set on them when they asked for a pw reset
     //and where the resetPassword token expires with a time greater than right now
@@ -228,7 +246,7 @@ router.get("/reset/:token", (req, res) => {
 });
 
 
-//RESET PASSWORD LOGIC
+/** RESET PASSWORD LOGIC ======= */
 router.post("/reset/:token", (req, res) => {
     async.waterfall([
         /**First function */
