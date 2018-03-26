@@ -50,11 +50,11 @@ var storage = multer.diskStorage({
       }
       cb(null, true);
   };
-  var upload = multer({ storage: storage, fileFilter: imageFilter})
+  var upload = multer({ storage: storage, fileFilter: imageFilter});
   
   var cloudinary = require('cloudinary');
   cloudinary.config({ 
-    cloud_name: 'n8dawg', 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
     api_key: process.env.CLOUDINARY_API_KEY, 
     api_secret: process.env.CLOUDINARY_API_SECRET
   });
@@ -87,7 +87,7 @@ router.get("/new", middleware.isLoggedIn, (req, res) => {
 
 
 //Creating and saving a new campGround
-router.post("/", middleware.isLoggedIn, upload.single("image"), /*image coming from the form */ (req, res) => {
+router.post("/", middleware.isLoggedIn, upload.single("image"), /*image name coming from the form */ (req, res) => {
  
     cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
         if(err) {
