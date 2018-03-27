@@ -11,12 +11,12 @@ const express       = require("express"),
       domain        = process.env.mailgun_domain,
       //Image upload
       multer        = require("multer"),
-      mailgun       = require('mailgun-js')({ apiKey: api_key, domain: domain });
+      mailgun       = require('mailgun-js')({ apiKey: api_key, domain: domain }),
+      middleware    = require("../middleware");
 
       //Express-validation http://tinyurl.com/ybpgyt76
 const { check, validationResult, body } = require('express-validator/check');
 const { matchedData, sanitize, sanitizeBody } = require('express-validator/filter');
-
 
 
 
@@ -40,7 +40,7 @@ var imageFilter = function(req, file, cb) {
 };
 
 //Uploading to cloudinary
-var upload = multer({storage: storage, fileFilter: imageFilter});
+var uploadImage = multer({storage: storage, fileFilter: imageFilter}).single("avatar");
 
 var cloudinary = require("cloudinary");
 cloudinary.config({
@@ -50,6 +50,46 @@ cloudinary.config({
 })
 /* ======================================
    END IMAGE UPLOAD CONFIG */
+
+
+   /* ======================================
+   VALIDATION MIDDLEWARE CONFIG
+   ====================================== */
+const validateRegistration = [
+    check("email").isEmail().trim().normalizeEmail().withMessage("Hmmm.. that doesn't look like a valid email address")
+        .custom((value, { req }) => {
+            //Check to see if other user already exists with same email address
+            return User.findOne({ email: value }).then(user => {
+                //If the user already exists, i.e. user is not null
+                //this translates to !(!null = true) = false
+                if (!(!user)) {
+                    throw new Error(`${value} is already in use`);
+                }
+            });//End User.findOne().then()
+        }),//End custom(),
+
+    check("username").isLength({ min: 3 }).withMessage("A username of at least 3 characters is required")
+        .custom((value, { req }) => {
+            //Check to see if other user already exists with same username
+            return User.findOne({ username: value }).then(user => {
+                //If the user already exists, i.e. user is not null
+                //this translates to !(!null = true) = false
+                if (!(!user)) {
+                    throw new Error(`The username '${value}' is already taken. Try another one?`);
+                }
+            }); //End User.findOne().then()
+        }), //End custom()
+
+    check("password").isLength({ min: 5 })
+    .matches(/\d/).withMessage("Please fill in a password of minimum 5 characters and one has to be a number")
+];
+
+/* ======================================
+   END VALIDATION MIDDLEWARE CONFIG */
+
+
+
+
 
 
 
@@ -67,35 +107,12 @@ router.get("/register", (req, res) => {
 });
 
 /** HANDLE THE SIGN UP LOGIC ======= */
-router.post("/register", /*Validation middleware*/[
-    body("email").isEmail().withMessage("Please fill in a valid email address").trim().normalizeEmail()
-    .custom((value, {req}) => {
-        //Checking to see if another user already signed up with the same email address
-        return User.findOne({email: value}).then(user => {
-            //if the user is not null, i.e. the user already exists
-            //it translates to !(!null = true) = false
-            if(!(!user)) {
-                throw new Error(`${value} is already in use`);
-            }
-         })
-    }),
-    body("username", "A username of at least 3 characters is required").isLength({min: 3})
-    .custom((value, {req}) => {
-        //Checking to see if another user already signed up with the same username
-        return User.findOne({username: value}).then(user => {
-            //if the user is not null, i.e. the user already exists
-            //it translates to !(!null = true) = false
-            if (!(!user)) {
-                throw new Error(`${value} is already in use`);
-            }
-        });
-    }),
-    body("password", "Passwords should be at least 5 characters long and contain one number.")
-    .isLength({min: 5})
-    .matches(/\d/)
-], /*Trimming the email*/sanitizeBody("email").trim(), (req, res) => {
+//Since express-validator is meant to be used as a middleware it should be placed after the multer image upload middleware. 
+router.post("/register", uploadImage, /*Validation middleware*/ validateRegistration,
+    /*Trimming the email*/ sanitizeBody("email").trim(), (req, res) => {
     //Get the validation errors 
     const errors = validationResult(req);
+    
     //If there are errors
     if (!errors.isEmpty()) {
         //First, let's deconstruct them into an object for each validation we're checking
@@ -103,13 +120,12 @@ router.post("/register", /*Validation middleware*/[
 
         //We create an array to store the flash messages
         let errorArr = [email, username, password];
-        let errorMsg = []; //This array will contain the specific error messages
+        let errorMsg = []; //This array will contain the specific error message strings
         errorArr.forEach((err, i) => {
             if(err !== undefined) {
                 errorMsg.push(err.msg);
             }
         });
-        eval(require("locus"));
         
         //And then we flash them  
         req.flash("error", errorMsg);
@@ -122,18 +138,17 @@ router.post("/register", /*Validation middleware*/[
             req.flash('error', err.message);
             return res.redirect("back");
         }
-
-        //add cloudinary url for the image to the user object as image property
-        req.body.user.image = result.secure_url;
-        //add image's public_id to user object
-        req.body.user.image_id = result.public_id;
         
         // matchedData returns only the subset of data validated by the middleware
         let newUser = matchedData(req);
+        
         newUser.firstName = req.body.firstName;
         newUser.lastName = req.body.lastName;
+        //add cloudinary url for the image to the user object as image property
+        newUser.avatar = result.secure_url;
+         //add image's public_id to user object
+        newUser.image_id = result.public_id;
         
-
         User.register(newUser, req.body.password, (err, user) => {
             if (err) {
                 req.flash("error", err.message);
