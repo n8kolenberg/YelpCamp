@@ -1,7 +1,6 @@
 const CampGround = require("../models/campground"),
       Comment    = require("../models/comment");
 
-
 //All the middleware goes in here
 const middlewareObj = {};
 
@@ -79,6 +78,8 @@ middlewareObj.checkCommentOwnership = (req, res, next) => {
         res.redirect("/login");
     }
 }
+
+
 
 
 module.exports = middlewareObj;
