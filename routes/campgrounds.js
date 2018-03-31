@@ -11,7 +11,8 @@ const express = require("express"),
     //will always look for a file named index.js - see nodemodules/express folder as an example
     //We don't define a name, but it will be looking for nodemodules/express/index.js
     middleware = require("../middleware"),
-
+    //https://github.com/aheckmann/gm
+    imgResize = require("gm").subClass({imageMagick: true}),
 
     //Image upload configuration
     multer = require("multer");
@@ -36,7 +37,18 @@ const express = require("express"),
 //         storage: storage,
 //         fileFilter: imageFilter
 //     });
-
+//Checking error
+(function () {
+    var childProcess = require("child_process");
+    var oldSpawn = childProcess.spawn;
+    function mySpawn() {
+        console.log('spawn called');
+        console.log(arguments);
+        var result = oldSpawn.apply(this, arguments);
+        return result;
+    }
+    childProcess.spawn = mySpawn;
+})();
 
 var storage = multer.diskStorage({
     filename: function(req, file, callback) {
@@ -48,6 +60,13 @@ var storage = multer.diskStorage({
       if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
           return cb(new Error('Only image files are allowed!'), false);
       }
+      //Use gm to resize image
+    //   imgResize(file.path)
+    //   .resize(250, 250)
+    //   .write(file.path, (err) => {
+    //       if(!err) console.log('Resized your image');
+    //   });
+
       cb(null, true);
   };
   var upload = multer({ storage: storage, fileFilter: imageFilter});
@@ -88,7 +107,7 @@ router.get("/new", middleware.isLoggedIn, (req, res) => {
 
 //Creating and saving a new campGround
 router.post("/", middleware.isLoggedIn, upload.single("image"), /*image name coming from the form */ (req, res) => {
- 
+
     cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
         if(err) {
             req.flash('error', err.message);
@@ -155,18 +174,17 @@ router.get("/:id/edit", middleware.checkCampGroundOwnership, (req, res) => {
 
 //UPDATE CAMPGROUND 
 router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"), (req, res) => {
-
     //If the user uploads a new image.
     if(req.file) {
         CampGround.findById(req.params.id, (err, campground) => {
             if(err) {
-                req.flash("error", err.message);
+                req.flash("error", `This is the problem with finding the campground: ${err.message}`);
                 return res.redirect("back");
             }
             //We need to delete the currently existing file from cloudinary
             cloudinary.v2.uploader.destroy(campground.image_id, (err, result) => {
                 if(err) {
-                    req.flash("error", err.message);
+                    req.flash("error", `This is the problem with cloudinary destroying the image: ${err.message}`);
                     return res.redirect("back");
                 }
             });
@@ -174,22 +192,17 @@ router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"),
             //Upload the new image
             cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
                 if(err) {
-                    req.flash("error", err.message);
+                    req.flash("error", `This is the problem with the upload: ${err.message}`);
                     return res.redirect("back");
                 }
                 //Associate the secure url from the file to the campground's image
-                campground.image = result.secure_url;
+                req.body.campground.image = result.secure_url;
                 //Associate the image's public_id to the campground object
-                campground.image_id = result.public_id;
-                // eval(require("locus"));
+                req.body.campground.image_id = result.public_id;
 
-                campground.author = {
-                    id : req.user._id,
-                    username: req.user.username
-                }
-                CampGround.findByIdAndUpdate(campground._id, campground, (err) => {
+                CampGround.findByIdAndUpdate(req.params.id, req.body.campground, (err) => {
                     if(err) {
-                        req.flash("error", err.message);
+                        req.flash("error", `This is the problem with updating the campground: ${err.message}`);
                         return res.redirect("back");
                     }
                     req.flash("success", "You've successfully updated your campground!");
@@ -201,7 +214,8 @@ router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"),
     }
     else {
         //If the user only updated the text fields of the campgrounds, then we find the campground and update it
-        CampGround.findById(req.params.id, req.body.campground, (err, campground) => {
+        CampGround.findByIdAndUpdate(req.params.id, req.body.campground, (err, campground) => {
+
             if(err) {
                 req.flash("error", err.message);
                 return res.redirect("back");
@@ -216,13 +230,21 @@ router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"),
 
 //DESTROY CAMPGROUND
 router.delete("/:id", middleware.checkCampGroundOwnership, (req, res) => {
-    CampGround.findByIdAndRemove(req.params.id, (err) => {
+    CampGround.findById(req.params.id, (err, campground) => {
         if (err) {
-            res.redirect("/campgrounds");
-        } else {
-            req.flash("info", "Alright - your campground has been successfully deleted! Why not create another one?");
-            res.redirect("/campgrounds");
+            req.flash("error", err.message);
+            return res.redirect("back");
         }
+        //We need to delete the currently existing file from cloudinary
+        cloudinary.v2.uploader.destroy(campground.image_id, (err, result) => {
+            if (err) {
+                req.flash("error", err.message);
+                return res.redirect("back");
+            }
+        });
+        campground.remove();
+        req.flash("info", "Alright - your campground has been successfully deleted! Why not create another one?");
+        res.redirect("/campgrounds"); 
     });
 });
 
