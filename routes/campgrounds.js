@@ -11,8 +11,10 @@ const express = require("express"),
     //will always look for a file named index.js - see nodemodules/express folder as an example
     //We don't define a name, but it will be looking for nodemodules/express/index.js
     middleware = require("../middleware"),
-    //https://github.com/aheckmann/gm
-    imgResize = require("gm").subClass({imageMagick: true}),
+
+    //Image manipulation https://www.npmjs.com/package/jimp
+    Jimp = require("jimp"),
+    fs = require("fs"),
 
     //Image upload configuration
     multer = require("multer");
@@ -60,12 +62,6 @@ var storage = multer.diskStorage({
       if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
           return cb(new Error('Only image files are allowed!'), false);
       }
-      //Use gm to resize image
-    //   imgResize(file.path)
-    //   .resize(250, 250)
-    //   .write(file.path, (err) => {
-    //       if(!err) console.log('Resized your image');
-    //   });
 
       cb(null, true);
   };
@@ -108,31 +104,51 @@ router.get("/new", middleware.isLoggedIn, (req, res) => {
 //Creating and saving a new campGround
 router.post("/", middleware.isLoggedIn, upload.single("image"), /*image name coming from the form */ (req, res) => {
 
-    cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
-        if(err) {
-            req.flash('error', err.message);
-            return res.redirect('back');
-          }
-        
-        // add cloudinary url for the image to the campground object under image property
-        req.body.campground.image = result.secure_url;
-        //add image's public_id to campground object
-        req.body.campground.image_id = result.public_id;
-        // add author to campground
-        req.body.campground.author = {
-            id: req.user._id,
-            username: req.user.username
+    //Use Jimp to read image path
+    Jimp.read(req.file.path, (err, img) => {
+        if (err) {
+            req.flash("error", err.message);
+            res.redirect("back");
         }
 
-        CampGround.create(req.body.campground, function (err, campground) {
-            if (err) {
-                req.flash('error', err.message);
-                return res.redirect('back');
-            }
-            res.redirect('/campgrounds/' + campground.id);
-        });
-    });
-});
+        //Manipulate the image
+        img.resize(Jimp.AUTO, 200)
+            .quality(60)
+            .greyscale()
+            //Then save it in the req.file.path
+            .write(req.file.path, err => {
+                if(err) {
+                    console.log(err);
+                }
+                // Then upload the manipulated image
+                cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
+                    if (err) {
+                        req.flash('error', `This is the upload issue: ${err.message}`);
+                        return res.redirect('back');
+                    }
+
+                    // add cloudinary url for the image to the campground object under image property
+                    req.body.campground.image = result.secure_url;
+                    //add image's public_id to campground object
+                    req.body.campground.image_id = result.public_id;
+                    // add author to campground
+                    req.body.campground.author = {
+                        id: req.user._id,
+                        username: req.user.username
+                    }
+
+                    CampGround.create(req.body.campground, function (err, campground) {
+                        if (err) {
+                            req.flash('error', err.message);
+                            return res.redirect('back');
+                        }
+                        res.redirect('/campgrounds/' + campground.id);
+                    }); //End CampGround.create()
+                }); //End cloudinary.uploader.upload()
+            }); //End img.write()
+    }); //End Jimp.read()
+}); //End router.post()
+
 
 //GET CAMPGROUND BY ID
 router.get('/:id', (req, res) => {
