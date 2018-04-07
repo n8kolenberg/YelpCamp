@@ -117,11 +117,9 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
     if (!errors.isEmpty()) {
         //First, let's deconstruct them into an object for each validation we're checking
         let {email, username, password} = errors.mapped();
-
         //We create an array to store the flash messages
-        let errorArr = [email, username, password];
         let errorMsg = []; //This array will contain the specific error message strings
-        errorArr.forEach((err, i) => {
+        [email, username, password].forEach((err, i) => {
             if(err !== undefined) {
                 errorMsg.push(err.msg);
             }
