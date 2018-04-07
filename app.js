@@ -19,7 +19,8 @@ const indexRoutes               = require("./routes/index.js"),
       commentRoutes             = require("./routes/comments.js");
 
 /* Connecting mongoose to MongoDB */
-mongoose.connect('mongodb://127.0.0.1/campGrounds');
+//DB URL set up on Heroku by typing heroku config:set DATABASEURL= xxxx in terminal
+mongoose.connect(process.env.DATABASEURL);
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
