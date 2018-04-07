@@ -4,7 +4,8 @@
   "description": "Simple app that shows Camping Grounds available",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
   "author": "Nathaniel Kolenberg",
   "license": "ISC",
@@ -19,7 +20,7 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "express-validator": "^5.0.3",
-    "locus": "^2.0.1",
+    // "locus": "^2.0.1",
     "mailgun-js": "^0.16.0",
     "method-override": "^2.3.10",
     "moment": "^2.20.1",
