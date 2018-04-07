@@ -18,45 +18,15 @@ const express = require("express"),
 
     //Image upload configuration
     multer = require("multer");
-    //Define a name for the image file you will upload that consists of the date + original file name    
-    // storage = multer.diskStorage({
-    //     filename: function (req, file, callback) {
-    //         callback(null, Date.now() + file.originalname);
-    //     }
-    // });
-
-//     //Any image that gets uploaded via the form must have an extension of
-//     //jpg, jpeg, png or gif
-//     imageFilter = (req, file, cb) => {
-//         // accept image files only
-//         if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-//             return cb(new Error('Only image files are allowed!'), false);
-//         }
-//         cb(null, true);
-//     },
-
-//     upload = multer({
-//         storage: storage,
-//         fileFilter: imageFilter
-//     });
-//Checking error
-(function () {
-    var childProcess = require("child_process");
-    var oldSpawn = childProcess.spawn;
-    function mySpawn() {
-        console.log('spawn called');
-        console.log(arguments);
-        var result = oldSpawn.apply(this, arguments);
-        return result;
-    }
-    childProcess.spawn = mySpawn;
-})();
-
+     
+ //Define a name for the image file you will upload that consists of the date + original file name  
 var storage = multer.diskStorage({
     filename: function(req, file, callback) {
       callback(null, Date.now() + file.originalname);
     }
   });
+  //Any image that gets uploaded via the form must have an extension of
+  //jpg, jpeg, png or gif
   var imageFilter = function (req, file, cb) {
       // accept image files only
       if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
@@ -110,11 +80,9 @@ router.post("/", middleware.isLoggedIn, upload.single("image"), /*image name com
             req.flash("error", err.message);
             res.redirect("back");
         }
-
         //Manipulate the image
-        img.resize(Jimp.AUTO, 200)
-            .quality(60)
-            .greyscale()
+        img.resize(Jimp.AUTO, 400)
+            .quality(80)
             //Then save it in the req.file.path
             .write(req.file.path, err => {
                 if(err) {
