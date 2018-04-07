@@ -19,7 +19,7 @@ const indexRoutes               = require("./routes/index.js"),
       commentRoutes             = require("./routes/comments.js");
 
 /* Connecting mongoose to MongoDB */
-mongoose.connect('mongodb://127.0.0.1/campGrounds');
+mongoose.connect(process.env.DATABASEURL);
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
@@ -105,8 +105,8 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(process.env.PORT, process.env.IP, () => {
-    console.log(`YelpCamp listening on port ${process.env.localhost}!`);
+app.listen(process.env.PORT, () => {
+    console.log(`YelpCamp listening on port ${process.env.PORT}!`);
 });
 
 
