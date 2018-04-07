@@ -105,7 +105,7 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(process.env.localhost, () => {
+app.listen(process.env.PORT, process.env.IP, () => {
     console.log(`YelpCamp listening on port ${process.env.localhost}!`);
 });
 
