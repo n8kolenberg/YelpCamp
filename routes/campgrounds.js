@@ -82,7 +82,7 @@ router.post("/", middleware.isLoggedIn, upload.single("image"), /*image name com
         }
         //Manipulate the image
         img.resize(Jimp.AUTO, 400)
-            .quality(80)
+            .quality(100)
             //Then save it in the req.file.path
             .write(req.file.path, err => {
                 if(err) {
@@ -146,7 +146,7 @@ router.get("/:id/edit", middleware.checkCampGroundOwnership, (req, res) => {
     CampGround.findById(req.params.id, (err, foundCampGround) => {
         if (err) {
             console.log(err);
-            req.flash("error", "Woops! Now that's embarrassing... We couldn't find that campground in our database. Maybe try again later?");
+            req.flash("error", "Woops! Now that's embarrassing... We couldn't find that campground.");
             res.redirect("back");
         } else {
             res.render("campgrounds/edit", {
@@ -171,29 +171,52 @@ router.put("/:id/", middleware.checkCampGroundOwnership, upload.single("image"),
                     req.flash("error", `This is the problem with cloudinary destroying the image: ${err.message}`);
                     return res.redirect("back");
                 }
-            });
+            }); //End cloudinary.v2.uploader.destroy
 
-            //Upload the new image
-            cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
+            Jimp.read(req.file.path, (err, img) => {
                 if(err) {
-                    req.flash("error", `This is the problem with the upload: ${err.message}`);
-                    return res.redirect("back");
+                    req.flash("error", err.message);
+                    res.redirect("back");
                 }
-                //Associate the secure url from the file to the campground's image
-                req.body.campground.image = result.secure_url;
-                //Associate the image's public_id to the campground object
-                req.body.campground.image_id = result.public_id;
-
-                CampGround.findByIdAndUpdate(req.params.id, req.body.campground, (err) => {
+                //Manipulate the image
+                img.resize(Jimp.AUTO, 600)
+                .quality(100)
+                //Then save it in the req.file.path
+                .write(req.file.path, err => {
                     if(err) {
-                        req.flash("error", `This is the problem with updating the campground: ${err.message}`);
-                        return res.redirect("back");
+                        console.log(err);
                     }
-                    req.flash("success", "You've successfully updated your campground!");
-                    res.redirect(`/campgrounds/${campground._id}`);
-                })
-            });            
-        });
+                    //Then upload the manipulated image
+                    cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
+                       if(err) {
+                           req.flash("error", err.message);
+                           return res.redirect("back");
+                       } 
+                        // add cloudinary url for the image to the campground object under image property
+                        req.body.campground.image = result.secure_url;
+                        //add image's public_id to campground object
+                        req.body.campground.image_id = result.public_id;
+                        // add author to campground
+                        req.body.campground.author = {
+                            id: req.user._id,
+                            username: req.user.username
+                        };
+                        //Now we find the same campground again and we update what the user added
+                        CampGround.findByIdAndUpdate(req.params.id, req.body.campground, (err, campground) => {
+                            if(err) {
+                                req.flash("error", `There was an error updating your campground: ${err.message}`);
+                                return res.redirect("back");
+                            }
+                            req.flash("success", "You've successfully updated your campground!");
+                            res.redirect(`/campgrounds/${campground._id}`);
+
+                        });//End Campground.findByIdAndUpdate
+                    });
+
+                })//End img.write()
+            });//End Jimp.read()
+          
+        }); //End Campground.findById()
         
     }
     else {
