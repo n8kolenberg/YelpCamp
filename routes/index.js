@@ -80,15 +80,13 @@ const validateRegistration = [
             }); //End User.findOne().then()
         }), //End custom()
 
-    check("password").isLength({ min: 5 })
-    .matches(/\d/).withMessage("Please fill in a password of minimum 5 characters and one has to be a number")
+    check('password', 'Passwords must be at least 5 characters long and contain one number')
+        .isLength({ min: 5 })
+        .matches(/\d/)
 ];
 
 /* ======================================
    END VALIDATION MIDDLEWARE CONFIG */
-
-
-
 
 
 
