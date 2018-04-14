@@ -13,7 +13,7 @@ middlewareObj.isLoggedIn = (req, res, next) => {
     //It gives us the capability of accessing this flash message on the next request by using req.flash("error")
     //It needs to be handled in the login route and login view
     //This line has to be put in BEFORE we redirect otherwise it won't work
-    req.flash("error", "You need to be logged in to do that!");
+    req.flash("error", "Please login first");
     res.redirect("/login");
 }
 
