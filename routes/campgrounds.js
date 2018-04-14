@@ -45,24 +45,56 @@ var storage = multer.diskStorage({
   });
 
 
+//Cleaning form request data with regular expression
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
+
 
 
 //ROUTES
 router.get("/", (req, res) => {
-    let campGrounds = CampGround.find({}, null, {sort: {"createdAt": -1}}, (err, allcampGrounds) => {
-        if (err) {
-            req.flash("error", err.message);
-            res.redirect("back");
-        } else {
-            res.render('campgrounds/campgrounds', {
-                campGrounds: allcampGrounds,
-                page: "campgrounds"
-            });
-
-
-        }
-    });
+    //If the user searched for a campground
+    if(req.query.search) {
+        //clean up the search query
+        const regex = new RegExp(escapeRegex(req.query.search), "gi");
+        //find the campground based on the name the user typed in
+        CampGround.find({name: regex}, null, {sort: {"createdAt": -1}}, (err, allCampGrounds) => {
+            if(err) {
+                req.flash("error", err.message);
+                return res.redirect("back");
+            } else {
+                //If we couldn't find the name the user searched for
+                if(allCampGrounds.length < 1) {
+                    //Notify them
+                    req.flash("error", "We couldn't find any campground with that name");
+                    //And redirect them back
+                    return res.redirect("back");
+                    }
+                    //Otherwise, show them the campgrounds related to their search
+                res.render("campgrounds/campgrounds", {
+                    campGrounds: allCampGrounds,
+                    query: req.query.search,
+                    page: "campgrounds"
+                }); //End res.render()
+            } //End else {}
+        });//End CampGround.find()
+    } else {
+        CampGround.find({}, null, { sort: { "createdAt": -1 } }, (err, allcampGrounds) => {
+            if (err) {
+                req.flash("error", err.message);
+                return res.redirect("back");
+            } else {
+                res.render('campgrounds/campgrounds', {
+                    campGrounds: allcampGrounds,
+                    query: null,
+                    page: "campgrounds"
+                });
+            }
+        });
+    }
 });
+
 
 
 //This renders a form that allows the below post method to be called
