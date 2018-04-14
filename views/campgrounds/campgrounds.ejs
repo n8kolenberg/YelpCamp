@@ -25,17 +25,7 @@
       </div>
     </header>
 
-    
-
-
     <div class="row">
-      <div class="col-lg-12">
-        <h3>Our most popular Campgrounds</h3>
-      </div>
-    </div>
-
-    <div class="row">
-      <% if(campGrounds) {%>
       <% campGrounds.forEach((camp) => { %>
         <div class="col-md-3 col-sm-6">
           <div class="card bg-light mb-3">
@@ -51,7 +41,6 @@
           </div>
         </div>
         <% }); %>
-        <% } %>
     </div>
 
 
