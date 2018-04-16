@@ -53,47 +53,85 @@ function escapeRegex(text) {
 
 
 //ROUTES
+//ALL CAMPGROUNDS INCLUDING SEARCH ROUTE 
 router.get("/", (req, res) => {
+    //Max amount of items per page
+    var perPage = 8;
+    //The page we're currently on
+    let pageQuery = parseInt(req.query.page);
+    //If no page number was clicked, we start at page 1
+    let pageNumber = pageQuery ? pageQuery : 1;
     //If the user searched for a campground
     if(req.query.search) {
         //clean up the search query
         const regex = new RegExp(escapeRegex(req.query.search), "gi");
         //find the campground based on the name the user typed in
-        CampGround.find({name: regex}, null, {sort: {"createdAt": -1}}, (err, allCampGrounds) => {
-            if(err) {
-                req.flash("error", err.message);
-                return res.redirect("back");
-            } else {
-                //If we couldn't find the name the user searched for
-                if(allCampGrounds.length < 1) {
-                    //Notify them
-                    req.flash("error", "We couldn't find any campground with that name");
-                    //And redirect them back
-                    return res.redirect("back");
-                    }
-                    //Otherwise, show them the campgrounds related to their search
-                res.render("campgrounds/campgrounds", {
-                    campGrounds: allCampGrounds,
-                    query: req.query.search,
-                    page: "campgrounds"
-                }); //End res.render()
-            } //End else {}
-        });//End CampGround.find()
+        /* ==== PAGINATION TUTORIAL: https://evdokimovm.github.io/javascript/nodejs/mongodb/pagination/expressjs/ejs/bootstrap/2017/08/20/create-pagination-with-nodejs-mongodb-express-and-ejs-step-by-step-from-scratch.html*/
+        //For each page we need to skip ((perPage * pageQuery) - perPage) values (on the first page the value of the skip should be 0)
+        //On the 4th page, the value of the skip would be 24
+        //output only perPage items- in this case 8
+        CampGround.find({name: regex}, null, {sort: {"createdAt": -1}}).skip((perPage * pageQuery) - perPage).limit(perPage).exec((err, allCampGrounds) => {
+                //Count all items in collection with count() (we will use this value to calculate the number of pages):
+                CampGround.count().exec((err, count) => {
+                    //If we couldn't find the name the user searched for
+                    if (allCampGrounds.length < 1) {
+                        //Notify them
+                        req.flash("error", "We couldn't find any campground with that name");
+                        //And redirect them back
+                        return res.redirect("back");
+                    } else {
+                    res.render("campgrounds/campgrounds", {
+                        campGrounds: allCampGrounds,
+                        search: req.query.search,
+                        current: pageNumber,
+                        pages: Math.ceil(count / perPage)
+                    }); //End res.render()
+                }}); //End CampGround.count().exec()
+            }); //End CampGround.find()....exec()
     } else {
-        CampGround.find({}, null, { sort: { "createdAt": -1 } }, (err, allcampGrounds) => {
-            if (err) {
-                req.flash("error", err.message);
-                return res.redirect("back");
-            } else {
-                res.render('campgrounds/campgrounds', {
-                    campGrounds: allcampGrounds,
-                    query: null,
-                    page: "campgrounds"
-                });
-            }
+        CampGround.find({}, null, { sort: { "createdAt": -1 } }).skip((perPage * pageQuery) - perPage).limit(perPage).exec((err, allCampGrounds) => {
+            CampGround.count().exec((err, count) => {
+               if(err) {
+                   req.flash("error", err.message);
+                   return res.redirect("back");
+               }
+               res.render("campgrounds/campgrounds", {
+                campGrounds: allCampGrounds,
+                search: false,
+                current: pageNumber,
+                pages: Math.ceil(count / perPage)
+               });
+            }); //End CampGround.count().exec()
+            
         });
     }
 });
+
+
+//PAGINATION
+router.get("/all", (req, res) => {
+   
+   //For each page we need to skip ((perPage * pageQuery) - perPage) values (on the first page the value of the skip should be 0)
+   //On the 4th page, the value of the skip would be 24
+   //output only perPage items- in this case 8
+   CampGround.find({}).skip((perPage * pageQuery) - perPage).limit(perPage).exec((err, allCampGrounds) => {
+       //Count all items in collection with count() (we will use this value to calculate the number of pages):
+       CampGround.count().exec((err, count) => {
+          if(err) {
+              req.flash("error", err.message);
+              return res.redirect("back");
+          }
+          res.render("campgrounds/campgrounds", {
+              campGrounds: allCampGrounds,
+              current: pageNumber,
+              pages: Math.ceil(count/perPage)
+          }); //End res.render()
+       }); //End CampGround.count().exec()
+   }); //End CampGround.find().skip()....exec() 
+});//End router.get()
+
+
+
 
 
 
