@@ -108,33 +108,6 @@ router.get("/", (req, res) => {
 });
 
 
-//PAGINATION
-router.get("/all", (req, res) => {
-   
-   //For each page we need to skip ((perPage * pageQuery) - perPage) values (on the first page the value of the skip should be 0)
-   //On the 4th page, the value of the skip would be 24
-   //output only perPage items- in this case 8
-   CampGround.find({}).skip((perPage * pageQuery) - perPage).limit(perPage).exec((err, allCampGrounds) => {
-       //Count all items in collection with count() (we will use this value to calculate the number of pages):
-       CampGround.count().exec((err, count) => {
-          if(err) {
-              req.flash("error", err.message);
-              return res.redirect("back");
-          }
-          res.render("campgrounds/campgrounds", {
-              campGrounds: allCampGrounds,
-              current: pageNumber,
-              pages: Math.ceil(count/perPage)
-          }); //End res.render()
-       }); //End CampGround.count().exec()
-   }); //End CampGround.find().skip()....exec() 
-});//End router.get()
-
-
-
-
-
-
 //This renders a form that allows the below post method to be called
 router.get("/new", middleware.isLoggedIn, (req, res) => {
     res.render("campgrounds/new");
