@@ -16,7 +16,8 @@ const express                   = require('express'),
 //Require routes
 const indexRoutes               = require("./routes/index.js"),
       campgroundRoutes          = require("./routes/campgrounds.js"),
-      commentRoutes             = require("./routes/comments.js");
+      commentRoutes             = require("./routes/comments.js")
+
 
 /* Connecting mongoose to MongoDB */
 //DB URL set up on Heroku by typing heroku config:set DATABASEURL= xxxx in terminal

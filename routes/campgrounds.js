@@ -69,7 +69,7 @@ router.get("/", (req, res) => {
         /* ==== PAGINATION TUTORIAL: https://evdokimovm.github.io/javascript/nodejs/mongodb/pagination/expressjs/ejs/bootstrap/2017/08/20/create-pagination-with-nodejs-mongodb-express-and-ejs-step-by-step-from-scratch.html*/
         //For each page we need to skip ((perPage * pageQuery) - perPage) values (on the first page the value of the skip should be 0)
         //On the 4th page, the value of the skip would be 24
-        //output only perPage items- in this case 8
+        //output only perPage items - in this case 8
         CampGround.find({name: regex}, null, {sort: {"createdAt": -1}}).skip((perPage * pageQuery) - perPage).limit(perPage).exec((err, allCampGrounds) => {
                 //Count all items in collection with count() (we will use this value to calculate the number of pages):
                 CampGround.count().exec((err, count) => {

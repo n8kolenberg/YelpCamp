@@ -12,7 +12,9 @@ const express       = require("express"),
       //Image upload
       multer        = require("multer"),
       mailgun       = require('mailgun-js')({ apiKey: api_key, domain: domain }),
-      middleware    = require("../middleware");
+      middleware    = require("../middleware")
+      
+      request       = require("request");
 
       //Express-validation http://tinyurl.com/ybpgyt76
 const { check, validationResult, body } = require('express-validator/check');
@@ -96,6 +98,8 @@ router.get('/', (req, res) => {
     res.render("landing");
 });
 
+
+
 /* ======================================
    AUTH ROUTES
    ====================================== */
@@ -134,6 +138,25 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
             req.flash('error', err.message);
             return res.redirect("back");
         }
+        //RECAPTCHA SIGN UP
+        const captcha = req.body["g-recaptcha-response"];
+        if(!captcha) {
+            console.log(req.body);
+            req.flash("error", "Please select captcha");
+            return res.redirect("/register");
+        }
+        let secretKey = process.env.CAPTCHA;
+        //Verify Captcha URL
+        let verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
+
+        //Make request to verify URL
+        request.get(verifyURL, (err, response, body) => {
+            //if not successful
+            if(body.success !== undefined && !body.success) {
+                req.flash("error", "Captcha failed");
+                return res.redirect("/register");
+            }
+        })
         
         // matchedData returns only the subset of data validated by the middleware
         let newUser = matchedData(req);
