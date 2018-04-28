@@ -6,11 +6,14 @@ const express                   = require('express'),
       Comment                   = require('./models/comment.js'),
       User                      = require("./models/user.js"),
       passport                  = require("passport"),
+      FacebookStrategy          = require("passport-facebook").Strategy,
       localStrategy             = require("passport-local"),
       passportLocalMongoose     = require("passport-local-mongoose"),
       methodOverride            = require("method-override"),
       flash                     = require("connect-flash"),
       dotenv                    = require("dotenv").config(),
+      fs                        = require("fs"),
+      https                     = require("https"),
       seedDB                    = require('./seeds');
 
 //Require routes
@@ -52,12 +55,50 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 
-//User.authenticate() -> method possible because of line 10 in user.js
+//User.authenticate() -> method possible because of following line in user.js
 //userSchema.plugin(passportLocalMongoose);
 passport.use(new localStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: "https://localhost:3000/auth/facebook/callback"
+},
+    function (accessToken, refreshToken, profile, cb) {
+        eval(require("locus"));
+        User.findById(profile.id, (err, user) => {
+            if(err) {
+                req.flash("error", err.message);
+                return res.redirect("back");
+            } 
+            //If the user's FB id was not found in the DB, we register them
+            if(!user) {
+                eval(require("locus"));
+                User.register()
+            }
+            
+        });
+        User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+            return cb(err, user);
+        });
+    }
+));
+
+
+//HTTPS for Localhost config
+var options = {
+    key: fs.readFileSync('localhost.key'),
+    cert: fs.readFileSync('localhost.cert'),
+    requestCert: false,
+    rejectUnauthorized: false
+};
+
+var server = https.createServer(options, app);
+
 
 
 /* ======================================
@@ -107,7 +148,7 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
     console.log(`YelpCamp listening on port ${process.env.PORT}!`);
 });
 

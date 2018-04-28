@@ -1,20 +1,21 @@
-const express       = require("express"),
-      router        = express.Router({mergeParams: true}),
-      passport      = require("passport"),
-      CampGround    = require("../models/campground"),   
-      User          = require("../models/user"),
-      nodemailer    = require("nodemailer"),
-      async         = require("async"),
-      crypto        = require("crypto"), //This one comes with Express so you don't have to install it
+const express               = require("express"),
+      router                = express.Router({mergeParams: true}),
+      passport              = require("passport"),
+      CampGround            = require("../models/campground"),   
+      User                  = require("../models/user"),
+      nodemailer            = require("nodemailer"),
+      async                 = require("async"),
+      crypto                = require("crypto"), //This one comes with Express so you don't have to install it
       //The following is data for sending reset password emails through mailgun
-      api_key       = process.env.mailgun_api_key,
-      domain        = process.env.mailgun_domain,
+      api_key               = process.env.mailgun_api_key,
+      domain                = process.env.mailgun_domain,
       //Image upload
-      multer        = require("multer"),
-      mailgun       = require('mailgun-js')({ apiKey: api_key, domain: domain }),
-      middleware    = require("../middleware")
+      multer                = require("multer"),
+      mailgun               = require('mailgun-js')({ apiKey: api_key, domain: domain }),
+      middleware            = require("../middleware"),
       
-      request       = require("request");
+      
+      request               = require("request");
 
       //Express-validation http://tinyurl.com/ybpgyt76
 const { check, validationResult, body } = require('express-validator/check');
@@ -193,7 +194,23 @@ router.post("/login", passport.authenticate("local", {
 }), (req, res) => {
 });
 
+/** FACEBOOK LOGIN LOGIC HANDLER =======*/
+// Redirect the user to Facebook for authentication.  When complete,
+// Facebook will redirect the user back to the application at
+//     /auth/facebook/callback
+router.get("/auth/facebook", passport.authenticate("facebook"));
 
+// Facebook will redirect the user to this URL after approval.  Finish the
+// authentication process by attempting to obtain an access token.  If
+// access was granted, the user will be logged in.  Otherwise,
+// authentication has failed.
+router.get('/auth/facebook/callback',
+    passport.authenticate('facebook', {
+        successRedirect: '/campgrounds',
+        failureRedirect: '/login'
+    }));
+
+/**END FACEBOOK LOGIN LOGIC HANDLER =======*/
 
 /** THE LOGOUT ROUTE ======= */
 router.get("/logout", (req, res) => {
@@ -209,7 +226,7 @@ router.get("/users/:id", (req, res) => {
     User.findById(req.params.id, (err, foundUser) => {
         if(err || !foundUser) {
             req.flash("error", "Woops! Unfortunately, that user doesn't seem to exist anymore");
-            res.redirect("/campgrounds");
+            return res.redirect("/campgrounds");
         } else {
             CampGround.find({}, null, {sort: {"createdAt": -1}}).where('author.id').equals(foundUser._id).exec((err, campgrounds) => {
                 if(err) {
@@ -260,6 +277,7 @@ router.post("/forgot", (req, res, next)=>{
         },
         /*Third functtion*/
         (token, user, done) => {
+            
             let maildata = {
                 from: 'N8 at YelpCamp <nkolenberg@gmail.com>',
                 to: user.email,
@@ -274,6 +292,32 @@ If you did not request this, please ignore this email and your password will rem
                 `
             };
 
+             let transport = nodemailer.createTransport({
+                 host: "smtp.mailgun.org",
+                 port: 587,
+                 secure: false,
+                 tls: {
+                     ciphers: "SSLv3"
+                 },
+                 auth: {
+                     user: "nkolenberg@gmail.com",
+                     password: "CodeBetterN8!"
+                 }
+             });
+             transport.sendMail({
+                from: "Yo Mama",
+                to: "nkolenberg@gmail.com",
+                subject: "Fancy email",
+                text: "Still sending some text to test",
+                html: {path: "../views/mail/reset.html"}
+             }, (err) => {
+                 if(err) {
+                     console.log(err.message);
+                     return res.redirect("back");
+                 }
+                 console.log("Email was sent successfully");
+
+             });
 
          /**Using Mailgun to test reset password email */
             mailgun.messages().send(maildata, (err, body) => {
