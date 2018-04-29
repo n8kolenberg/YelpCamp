@@ -9,7 +9,14 @@ let userSchema = new mongoose.Schema({
     lastName: String,
     email: {type: String, unique: true, required: true},
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+
+    facebook: {
+        id: String,
+        token: String,
+        email: String,
+        name: String,
+    }
 });
 
 
