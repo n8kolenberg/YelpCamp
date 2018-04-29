@@ -139,7 +139,7 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
             req.flash('error', err.message);
             return res.redirect("back");
         }
-        //RECAPTCHA SIGN UP
+        //==RECAPTCHA SIGN UP==//
         const captcha = req.body["g-recaptcha-response"];
         if(!captcha) {
             console.log(req.body);
@@ -149,7 +149,6 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
         let secretKey = process.env.CAPTCHA;
         //Verify Captcha URL
         let verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}&remoteip=${req.connection.remoteAddress}`;
-
         //Make request to verify URL
         request.get(verifyURL, (err, response, body) => {
             //if not successful
@@ -158,6 +157,7 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
                 return res.redirect("/register");
             }
         })
+        //==END RECAPTCHA SIGN UP==//
         
         // matchedData returns only the subset of data validated by the middleware
         let newUser = matchedData(req);
@@ -198,7 +198,8 @@ router.post("/login", passport.authenticate("local", {
 // Redirect the user to Facebook for authentication.  When complete,
 // Facebook will redirect the user back to the application at
 //     /auth/facebook/callback
-router.get("/auth/facebook", passport.authenticate("facebook"));
+// We're adding the scope object to allow Facebook to send us the user's email as well to store it if needed
+router.get("/auth/facebook", passport.authenticate("facebook", {scope: ['public_profile','email']}));
 
 // Facebook will redirect the user to this URL after approval.  Finish the
 // authentication process by attempting to obtain an access token.  If
