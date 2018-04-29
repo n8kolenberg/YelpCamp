@@ -63,41 +63,53 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
+/*====== FACEBOOK LOGIN LOGIC ========*/
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "https://localhost:3000/auth/facebook/callback"
+    callbackURL: process.env.FB_CALLBACK_URL,
+    profileFields: ['id', 'displayName', 'picture.type(large)', 'email']
 },
     function (accessToken, refreshToken, profile, cb) {
-        eval(require("locus"));
-        User.findById(profile.id, (err, user) => {
-            if(err) {
-                req.flash("error", err.message);
-                return res.redirect("back");
-            } 
-            //If the user's FB id was not found in the DB, we register them
-            if(!user) {
-                eval(require("locus"));
-                User.register()
-            }
-            
+        //For asynchronous handling of the incoming Facebook data, we use NodeJS' process.nextTick()
+        process.nextTick(() => {
+            //We try to find the user with their Facebook profile id
+            User.findOne({"facebook.id" : profile.id}, (err, user) => {
+                if(err) {
+                    req.flash("error", err.message);
+                    return res.redirect("back");
+                }
+                //If the user's FB id was not found in the DB, we register them
+                if (!user) {
+                    let newUser = new User();
+                    newUser.facebook.id = profile.id;
+                    newUser.facebook.token = accessToken;
+                    newUser.facebook.name = `${profile.givenName} ${profile.lastName}`;
+                    newUser.facebook.email = profile.emails[0].value;
+                    newUser.save((err) => {
+                        if (err) {
+                            req.flash("error", err.message);
+                            return res.redirect("back");
+                        }
+                    });
+                } //End if(!user)
+            });
         });
-        User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-            return cb(err, user);
-        });
-    }
-));
+          
+     })//End new FacebookStrategy
+        
+);//End passport.us
 
 
-//HTTPS for Localhost config
-var options = {
-    key: fs.readFileSync('localhost.key'),
-    cert: fs.readFileSync('localhost.cert'),
-    requestCert: false,
-    rejectUnauthorized: false
-};
+// //HTTPS for Localhost config
+// var options = {
+//     key: fs.readFileSync('localhost.key'),
+//     cert: fs.readFileSync('localhost.cert'),
+//     requestCert: false,
+//     rejectUnauthorized: false
+// };
 
-var server = https.createServer(options, app);
+// var server = https.createServer(options, app);
 
 
 
@@ -148,7 +160,7 @@ app.get('*', (req, res) => {
 });
 
 
-server.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log(`YelpCamp listening on port ${process.env.PORT}!`);
 });
 
