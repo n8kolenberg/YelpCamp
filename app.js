@@ -76,8 +76,7 @@ passport.use(new FacebookStrategy({
             //We try to find the user with their Facebook profile id
             User.findOne({"facebook.id" : profile.id}, (err, user) => {
                 if(err) {
-                    req.flash("error", err.message);
-                    return res.redirect("back");
+                    console.log(err.message);
                 }
                 //If the user's FB id was not found in the DB, we register them
                 if (!user) {
@@ -88,8 +87,7 @@ passport.use(new FacebookStrategy({
                     newUser.facebook.email = profile.emails[0].value;
                     newUser.save((err) => {
                         if (err) {
-                            req.flash("error", err.message);
-                            return res.redirect("back");
+                            console.log(err.message);
                         }
                     });
                 } //End if(!user)
