@@ -59,8 +59,18 @@ app.use(passport.session());
 //userSchema.plugin(passportLocalMongoose);
 passport.use(new localStrategy(User.authenticate()));
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    })
+})
 
 
 /*====== FACEBOOK LOGIN LOGIC ========*/
@@ -70,13 +80,17 @@ passport.use(new FacebookStrategy({
     callbackURL: process.env.FB_CALLBACK_URL,
     profileFields: ['id', 'displayName', 'picture.type(large)', 'email']
 },
-    function (accessToken, refreshToken, profile, cb) {
+    (accessToken, refreshToken, profile, done) => {
         //For asynchronous handling of the incoming Facebook data, we use NodeJS' process.nextTick()
         process.nextTick(() => {
             //We try to find the user with their Facebook profile id
             User.findOne({"facebook.id" : profile.id}, (err, user) => {
                 if(err) {
                     console.log(err.message);
+                    return done(err);
+                }
+                if(user) {
+                    return done(null, user)
                 }
                 //If the user's FB id was not found in the DB, we register them
                 if (!user) {
@@ -89,9 +103,12 @@ passport.use(new FacebookStrategy({
                     newUser.save((err) => {
                         if (err) {
                             console.log(err.message);
+                            throw err;
                         }
+                        return done(null, newUser);
                     });
                 } //End if(!user)
+                
             });
         });
           
