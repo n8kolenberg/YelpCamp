@@ -145,8 +145,10 @@ router.post("/", middleware.isLoggedIn, upload.single("image"), /*image name com
                     // add author to campground
                     req.body.campground.author = {
                         id: req.user._id,
-                        username: req.user.username
+                        username: req.user.local.username ? req.user.local.username : req.user.facebook.name,
+                        avatar: req.user.local.avatar
                     }
+                    // eval(require("locus"));
 
                     CampGround.create(req.body.campground, function (err, campground) {
                         if (err) {
@@ -167,16 +169,19 @@ router.get('/:id', (req, res) => {
     //Then populate the comments from the ids that are associated with the campGround in ascending order 
     //based on their createdDate
     //Then execute the callback function
-    CampGround.findById(req.params.id).populate({ path: "comments", options: {sort: {"createdAt": -1}} }).exec((err, foundCamp) => {
+    CampGround.findById(req.params.id).populate({ path: "comments", options: {sort: {"createdAt": -1}} })
+    
+    .exec((err, foundCamp) => {
         //If there's an err or there's no foundCamp, i.e. the db returns null (and !null = true)
         if (err || !foundCamp) {
             console.log(err);
             req.flash("error", "Campground not found!");
             res.redirect("back");
         } else {
-            eval(require("locus"));
+            // eval(require("locus"));
             res.render("campgrounds/show", {
-                foundCamp: foundCamp
+                foundCamp: foundCamp,
+                // foundCamp
             });
 
         }

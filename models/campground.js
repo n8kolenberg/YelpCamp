@@ -12,20 +12,15 @@ let campGroundSchema = new mongoose.Schema({
     }],
 
     author: {
-        id: {
+        id : {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
-        local: {
-            username: String
-        },
-        facebook: {
-            name: String
-        }
+        username: String,
+        avatar: String,
+        createdAt: { type: Date, default: Date.now }
+    }
 
-    },
-    createdAt: { type: Date, default: Date.now }
-
-});
+    });
 //Define the model
 module.exports = mongoose.model('CampGround', campGroundSchema);

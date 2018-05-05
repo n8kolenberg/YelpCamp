@@ -159,8 +159,10 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
         })
         //==END RECAPTCHA SIGN UP==//
         
+        let newUser = {};
         // matchedData returns only the subset of data validated by the middleware
-        let newUser = matchedData(req);
+        let {email, username} = matchedData(req);
+        newUser.local = {email, username}
         
         newUser.local.firstName = req.body.firstName;
         newUser.local.lastName = req.body.lastName;
@@ -168,13 +170,15 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
         newUser.local.avatar = result.secure_url;
          //add image's public_id to user object
         newUser.local.image_id = result.public_id;
-        
+        // eval(require("locus"));
+
         User.register(newUser, req.body.password, (err, user) => {
+            // eval(require("locus"));
             if (err) {
                 req.flash("error", err.message);
                 return res.redirect("/register");
             }
-            passport.authenticate("local")(req, res, () => {
+            passport.authenticate("local", (req, res) => {
                 req.flash("success", `Welcome to YelpCamp, ${user.local.username}!`);
                 res.redirect("/campgrounds");
             }); //End passport.authenticate()

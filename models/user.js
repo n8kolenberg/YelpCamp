@@ -8,7 +8,7 @@ let userSchema = new mongoose.Schema({
         avatar: { type: String, default: "https://goo.gl/FHhKVq" },
         firstName: String,
         lastName: String,
-        email: { type: String, unique: true, required: true },
+        email: { type: String, unique: true, required: true }
     },
     
     resetPasswordToken: String,
