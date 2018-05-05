@@ -174,7 +174,7 @@ router.get('/:id', (req, res) => {
             req.flash("error", "Campground not found!");
             res.redirect("back");
         } else {
-
+            eval(require("locus"));
             res.render("campgrounds/show", {
                 foundCamp: foundCamp
             });

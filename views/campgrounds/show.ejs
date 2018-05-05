@@ -17,8 +17,12 @@
         </h5>
         <p>
           <em>Submitted by:
-            <%= foundCamp.author.username %>,
-              <%= moment(foundCamp.createdAt).fromNow() %>
+            <% if(!foundCamp.author.facebook) { %>
+              <%= foundCamp.author.local.username %>,
+            <% } else { %> 
+              <%= foundCamp.author.facebook.name %>
+            <% } %>
+            <%= moment(foundCamp.createdAt).fromNow() %>
           </em>
         </p>
         <hr>

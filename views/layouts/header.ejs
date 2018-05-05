@@ -14,19 +14,6 @@
 </head>
 
 <body>
-<!--FACEBOOK SDK for Loggin in and Signing up-->
-<div id="fb-root"></div>
-<script>(function (d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.12&appId=1543447179086806&autoLogAppEvents=1';
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));</script>
-
-
- 
-
 
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/campgrounds">YelpCamp</a>
@@ -49,8 +36,12 @@
             </li>
             <% } else { %>
               <li class="nav-item">
-                <a class="nav-link" href="/#">Signed in as
-                  <%= currentUser.username %>
+                <a class="nav-link" href="/users/<%=currentUser._id%>">Signed in as
+                  <% if(!currentUser.facebook) { %>
+                  <%= currentUser.local.username %>
+                  <% } else { %>
+                    <%= currentUser.facebook.name %>
+                    <% } %>
                 </a>
               </li>
               <li class="nav-item">

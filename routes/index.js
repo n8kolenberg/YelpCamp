@@ -162,12 +162,12 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
         // matchedData returns only the subset of data validated by the middleware
         let newUser = matchedData(req);
         
-        newUser.firstName = req.body.firstName;
-        newUser.lastName = req.body.lastName;
+        newUser.local.firstName = req.body.firstName;
+        newUser.local.lastName = req.body.lastName;
         //add cloudinary url for the image to the user object as image property
-        newUser.avatar = result.secure_url;
+        newUser.local.avatar = result.secure_url;
          //add image's public_id to user object
-        newUser.image_id = result.public_id;
+        newUser.local.image_id = result.public_id;
         
         User.register(newUser, req.body.password, (err, user) => {
             if (err) {
@@ -175,7 +175,7 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
                 return res.redirect("/register");
             }
             passport.authenticate("local")(req, res, () => {
-                req.flash("success", `Welcome to YelpCamp, ${user.username}!`);
+                req.flash("success", `Welcome to YelpCamp, ${user.local.username}!`);
                 res.redirect("/campgrounds");
             }); //End passport.authenticate()
         }); //End User.register
@@ -281,7 +281,7 @@ router.post("/forgot", (req, res, next)=>{
             
             let maildata = {
                 from: 'N8 at YelpCamp <nkolenberg@gmail.com>',
-                to: user.email,
+                to: user.local.email,
                 subject: 'YelpCamp Password Reset',
                 text: `
 You are receiving this because you (or someone else) have requested the reset of the password for your account.
@@ -326,7 +326,7 @@ If you did not request this, please ignore this email and your password will rem
                     console.log(err);
                 }
                 console.log("Password reset email sent");
-                req.flash("success", `An email has been sent to ${user.email} with further instructions`);
+                req.flash("success", `An email has been sent to ${user.local.email} with further instructions`);
                 done(err, "done");
             });
         }], 
@@ -394,12 +394,12 @@ router.post("/reset/:token", (req, res) => {
         (user, done) => {
             let maildata = {
                 from: 'N8 at YelpCamp <nkolenberg@gmail.com>',
-                to: user.email,
+                to: user.local.email,
                 subject: 'Your YelpCamp password has been changed',
                 text: `
-Hi ${user.firstName},
+Hi ${user.local.firstName},
 
-This is a confirmation that the password for your account - ${user.email} has just been changed. 
+This is a confirmation that the password for your account - ${user.local.email} has just been changed. 
 
 
 Happy Camping!

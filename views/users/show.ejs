@@ -8,14 +8,22 @@
             <div class="card bg-light mt-3">
                 <div class="card-header" style="text-align: center;">
                     <h4>
-                        <%= user.firstName + " " + user.lastName %>
+                        <% if(!user.facebook) { %>
+                        <%= user.local.firstName + " " + user.local.lastName %>
+                        <% } else { %>
+                            <%= user.facebook.name %>
+                        <% } %>
                     </h4>
                 </div>
                 <div class="card-body" style="text-align: center;">
-                    <img style="width: 60%; border-radius: 50%" src="<%=user.avatar%>" alt="<%=user.firstName%>'s avatar image'">
+                    <img style="width: 60%; border-radius: 50%" src="<%=user.local.avatar%>" alt="Avatar image">
                     <div class="card-title">
                         <a href="mailto:<%= user.email %>">
-                            <%= user.email %>
+                            <% if(!user.facebook) { %>
+                                <%= user.local.email %>
+                            <% } else { %>
+                                <%= user.facebook.email %>
+                            <% } %>
                         </a>
                     </div>
                 </div>

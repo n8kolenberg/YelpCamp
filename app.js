@@ -83,6 +83,7 @@ passport.use(new FacebookStrategy({
     (accessToken, refreshToken, profile, done) => {
         //For asynchronous handling of the incoming Facebook data, we use NodeJS' process.nextTick()
         process.nextTick(() => {
+            // eval(require("locus"));
             //We try to find the user with their Facebook profile id
             User.findOne({"facebook.id" : profile.id}, (err, user) => {
                 if(err) {
@@ -97,9 +98,10 @@ passport.use(new FacebookStrategy({
                     let newUser = new User();
                     newUser.facebook.id = profile.id;
                     newUser.facebook.token = accessToken;
-                    newUser.facebook.name = `${profile.givenName} ${profile.lastName}`;
+                    newUser.facebook.name = `${profile.displayName}`;
                     newUser.facebook.email = profile.emails[0].value;
-                    newUser.email = profile.emails[0].value;
+                    newUser.local.email = profile.emails[0].value;
+                    newUser.local.avatar = profile.photos[0].value;
                     newUser.save((err) => {
                         if (err) {
                             console.log(err.message);
@@ -110,22 +112,9 @@ passport.use(new FacebookStrategy({
                 } //End if(!user)
                 
             });
-        });
-          
+        });     
      })//End new FacebookStrategy
-        
-);//End passport.us
-
-
-// //HTTPS for Localhost config
-// var options = {
-//     key: fs.readFileSync('localhost.key'),
-//     cert: fs.readFileSync('localhost.cert'),
-//     requestCert: false,
-//     rejectUnauthorized: false
-// };
-
-// var server = https.createServer(options, app);
+);//End passport.use
 
 
 
