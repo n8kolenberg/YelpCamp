@@ -113,6 +113,7 @@ router.get("/register", (req, res) => {
 //Since express-validator is meant to be used as a middleware it should be placed after the multer image upload middleware. 
 router.post("/register", uploadImage, /*Validation middleware*/ validateRegistration,
     /*Trimming the email*/ sanitizeBody("email").trim(), (req, res) => {
+
     //Get the validation errors 
     const errors = validationResult(req);
     
@@ -170,14 +171,13 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
         newUser.local.avatar = result.secure_url;
          //add image's public_id to user object
         newUser.local.image_id = result.public_id;
-        // eval(require("locus"));
 
         User.register(newUser, req.body.password, (err, user) => {
             // eval(require("locus"));
-            if (err) {
+            if (err) {                
                 req.flash("error", err.message);
                 return res.redirect("/register");
-            }
+            }            
             passport.authenticate("local", (req, res) => {
                 req.flash("success", `Welcome to YelpCamp, ${user.local.username}!`);
                 res.redirect("/campgrounds");
