@@ -141,7 +141,7 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
             return res.redirect("back");
         }
         //==RECAPTCHA SIGN UP==//
-        const captcha = req.body["g-recaptcha-response"];
+        /*const captcha = req.body["g-recaptcha-response"];
         if(!captcha) {
             console.log(req.body);
             req.flash("error", "Please select captcha");
@@ -157,13 +157,14 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
                 req.flash("error", "Captcha failed");
                 return res.redirect("/register");
             }
-        })
+        })*/
         //==END RECAPTCHA SIGN UP==//
         
         let newUser = {};
         // matchedData returns only the subset of data validated by the middleware
         let {email, username} = matchedData(req);
-        newUser.local = {email, username}
+        newUser.local = {email, username};
+        newUser.username = newUser.local.username;
         
         newUser.local.firstName = req.body.firstName;
         newUser.local.lastName = req.body.lastName;
@@ -172,19 +173,19 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
          //add image's public_id to user object
         newUser.local.image_id = result.public_id;
 
+
         User.register(newUser, req.body.password, (err, user) => {
             // eval(require("locus"));
             if (err) {                
                 req.flash("error", err.message);
                 return res.redirect("/register");
-            }            
-            passport.authenticate("local", (req, res) => {
-                req.flash("success", `Welcome to YelpCamp, ${user.local.username}!`);
-                res.redirect("/campgrounds");
-            }); //End passport.authenticate()
+            }
         }); //End User.register
+
     }); //End cloudinary.uploader.upload()
-}) //End post route;
+
+            
+}); //End post route;
 
 /** SHOW THE LOGIN FORM ======= */
 router.get("/login", (req, res) => {
