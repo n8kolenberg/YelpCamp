@@ -100,7 +100,7 @@ passport.use(new FacebookStrategy({
                     newUser.facebook.token = accessToken;
                     newUser.facebook.name = `${profile.displayName}`;
                     newUser.facebook.email = profile.emails[0].value;
-                    newUser.local.email = profile.emails[0].value;
+                    newUser.email = profile.emails[0].value;
                     newUser.local.avatar = profile.photos[0].value;
                     newUser.save((err) => {
                         if (err) {
