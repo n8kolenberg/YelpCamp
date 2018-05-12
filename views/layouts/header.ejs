@@ -38,7 +38,7 @@
               <li class="nav-item">
                 <a class="nav-link" href="/users/<%=currentUser._id%>">Signed in as
                   <% if(!currentUser.facebook) { %>
-                  <%= currentUser.local.username %>
+                  <%= currentUser.username %>
                   <% } else { %>
                     <%= currentUser.facebook.name %>
                     <% } %>

@@ -133,15 +133,21 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
         req.flash("error", errorMsg);
         return res.redirect("back");
     }
-    
+
+    //If there's no image uploaded, put in a default
+    if(!req.file) {
+        req.file = {};
+        req.file.path = "https://goo.gl/FHhKVq"
+    } 
     //Image upload
     cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
+        // eval(require("locus"));
         if(err) {
             req.flash('error', err.message);
             return res.redirect("back");
         }
         //==RECAPTCHA SIGN UP==//
-        /*const captcha = req.body["g-recaptcha-response"];
+        const captcha = req.body["g-recaptcha-response"];
         if(!captcha) {
             console.log(req.body);
             req.flash("error", "Please select captcha");
@@ -157,15 +163,14 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
                 req.flash("error", "Captcha failed");
                 return res.redirect("/register");
             }
-        })*/
+        })
         //==END RECAPTCHA SIGN UP==//
         
         let newUser = {};
         // matchedData returns only the subset of data validated by the middleware
         let {email, username} = matchedData(req);
-        newUser.local = {email, username};
-        newUser.username = newUser.local.username;
-        
+        newUser = {email, username};
+        newUser.local = {};
         newUser.local.firstName = req.body.firstName;
         newUser.local.lastName = req.body.lastName;
         //add cloudinary url for the image to the user object as image property
@@ -180,6 +185,10 @@ router.post("/register", uploadImage, /*Validation middleware*/ validateRegistra
                 req.flash("error", err.message);
                 return res.redirect("/register");
             }
+            passport.authenticate("local")(req, res, () => {
+                req.flash("success", `Welcome to YelpCamp, ${user.username}!`);
+                res.redirect("/campgrounds");
+            }); //End passport.authenticate()
         }); //End User.register
 
     }); //End cloudinary.uploader.upload()

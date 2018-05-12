@@ -3,12 +3,20 @@ const mongoose              = require("mongoose"),
 
 let userSchema = new mongoose.Schema({
     password: { type: String },
-    local: {
-        username: { type: String, unique: true },
-        avatar: { type: String, default: "https://goo.gl/FHhKVq" },
+    username: {
+        type: String,
+        unique: true
+    },
+    email: {
+        type: String,
+        unique: true,
+        required: true
+    },
+
+    local: {    
+        avatar: { type: String },
         firstName: String,
-        lastName: String,
-        email: { type: String, unique: true, required: true }
+        lastName: String,     
     },
     
     resetPasswordToken: String,
